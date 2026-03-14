@@ -1,0 +1,194 @@
+---
+import '@fontsource/space-grotesk/400.css';
+import '@fontsource/space-grotesk/700.css';
+import '@fontsource/sora/400.css';
+import '@fontsource/sora/600.css';
+import '../styles/global.css';
+
+import { siteNav } from '../data/site';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const pathname = Astro.url.pathname;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/png" href="/nox-logo.png" />
+    <title>{title}</title>
+    <script is:inline>
+      (() => {
+        const saved = localStorage.getItem('nox-theme');
+        if (saved === 'light' || saved === 'dark') {
+          document.documentElement.setAttribute('data-theme', saved);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container inner">
+        <a class="brand" href="/" aria-label="NOX home">
+          <img src="/nox-logo.png" alt="NOX logo" />
+          <span>NOX</span>
+        </a>
+
+        <nav aria-label="Primary navigation">
+          {siteNav.map((item) => (
+            <a href={item.href} class={pathname === item.href ? 'active' : ''}>{item.label}</a>
+          ))}
+        </nav>
+
+        <div class="header-actions">
+          <button class="btn ghost nav toggle" id="theme-toggle" type="button" aria-label="Theme: Auto">Theme: Auto</button>
+          <a class="btn ghost nav" href="https://github.com/Nox-HQ/nox" target="_blank" rel="noreferrer">GitHub</a>
+        </div>
+      </div>
+    </header>
+
+    <slot />
+
+    <footer class="container footer">
+      <p>NOX is open source under Apache-2.0.</p>
+    </footer>
+
+    <script is:inline>
+      (() => {
+        const key = 'nox-theme';
+        const root = document.documentElement;
+        const button = document.getElementById('theme-toggle');
+        if (!button) return;
+        const order = ['auto', 'light', 'dark'];
+
+        const read = () => {
+          const value = localStorage.getItem(key);
+          return value === 'light' || value === 'dark' ? value : 'auto';
+        };
+
+        const apply = (theme) => {
+          if (theme === 'auto') {
+            root.removeAttribute('data-theme');
+            localStorage.removeItem(key);
+          } else {
+            root.setAttribute('data-theme', theme);
+            localStorage.setItem(key, theme);
+          }
+          const label = `Theme: ${theme[0].toUpperCase()}${theme.slice(1)}`;
+          button.textContent = label;
+          button.setAttribute('aria-label', label);
+        };
+
+        let current = read();
+        apply(current);
+
+        button.addEventListener('click', () => {
+          current = order[(order.indexOf(current) + 1) % order.length];
+          apply(current);
+        });
+      })();
+    </script>
+  </body>
+</html>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--header-bg);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--header-border);
+    box-shadow: var(--header-shadow);
+  }
+
+  .inner {
+    min-height: 76px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.06rem;
+    font-weight: 700;
+  }
+
+  .brand img {
+    width: 34px;
+    height: 34px;
+  }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+  }
+
+  nav a {
+    text-decoration: none;
+    color: var(--muted);
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: var(--nav-pill-bg);
+    font-size: 0.88rem;
+    padding: 0.34rem 0.7rem;
+    transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+  }
+
+  nav a.active,
+  nav a:hover {
+    color: var(--nav-pill-active-text);
+    border-color: var(--nav-pill-active-border);
+    background: var(--nav-pill-active-bg);
+  }
+
+  .header-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+  }
+
+  .toggle {
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .footer {
+    border-top: 1px solid var(--line);
+    padding: 1.05rem 0 2.1rem;
+    margin-top: 1.2rem;
+  }
+
+  .footer p {
+    margin: 0;
+    font-size: 0.84rem;
+  }
+
+  @media (max-width: 960px) {
+    .inner {
+      min-height: auto;
+      padding: 0.85rem 0;
+      grid-template-columns: 1fr;
+      justify-items: start;
+    }
+
+    nav {
+      justify-content: flex-start;
+    }
+  }
+</style>

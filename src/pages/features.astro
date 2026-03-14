@@ -1,0 +1,139 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const features = [
+  {
+    title: 'Detection Engine',
+    items: [
+      '1506+ security rules across 5 analyzer suites',
+      'Secrets, AI security, IaC, dependencies, and data sensitivity in one scan',
+      'Deterministic execution with offline-first defaults',
+      'Rule configuration and severity overrides through .nox.yaml',
+    ],
+  },
+  {
+    title: 'AI Security',
+    items: [
+      'Full OWASP LLM Top 10 coverage with 50 dedicated rules',
+      'Prompt injection and RAG boundary violation detection',
+      'MCP server configuration security analysis',
+      'Model provenance, tool safety, and AI-BOM v2.0 generation',
+    ],
+  },
+  {
+    title: 'Standard Outputs',
+    items: [
+      'SARIF 2.1.0 for GitHub Code Scanning integration',
+      'CycloneDX and SPDX SBOM generation',
+      'Standalone HTML dashboard with dark theme and filtering',
+      'AI inventory JSON with connection graph and tool matrix',
+    ],
+  },
+  {
+    title: 'Policy and Governance',
+    items: [
+      'Fail/warn thresholds for CI policy gates',
+      'Baseline management for known findings and controlled suppression',
+      'GRC compliance assessment across 12 frameworks including FedRAMP',
+      'Inline suppressions with audit trail',
+    ],
+  },
+  {
+    title: 'Plugin Ecosystem',
+    items: [
+      '32 plugins across 9 tracks with gRPC-based SDK',
+      'Track-based architecture with explicit risk classification',
+      'Plugin scaffolding via nox plugin init',
+      'Registry support for discovery and distribution',
+    ],
+  },
+  {
+    title: 'MCP Server',
+    items: [
+      '10 read-only tools for AI agent integration',
+      '5 MCP resources for artifact serving',
+      'Workspace allowlisting and output size limits',
+      'Sandboxed execution with rate limiting',
+    ],
+  },
+  {
+    title: 'Developer Experience',
+    items: [
+      'Watch mode for continuous scanning during development',
+      'Pre-commit hooks and shell completions',
+      'Incremental scan cache with content-addressed SHA-256',
+      'Differential scanning with --changed-since for fast CI',
+    ],
+  },
+  {
+    title: 'Supply Chain Security',
+    items: [
+      'Cosign keyless signing for release artifacts',
+      'SLSA Level 3 provenance attestation',
+      'CycloneDX and SPDX SBOM generation',
+      'Dependency confusion detection and artifact integrity verification',
+    ],
+  },
+];
+---
+
+<BaseLayout title="NOX — Feature Overview" description="Core NOX capabilities for modern security workflows.">
+  <main>
+    <section class="section container intro">
+      <p class="kicker">Capabilities</p>
+      <h1>One scanner, full coverage, standard outputs.</h1>
+      <p>NOX avoids tool sprawl by unifying detection, policy enforcement, and extension under one operating model. Every capability is deterministic, offline-capable, and CI-safe by default.</p>
+    </section>
+
+    <section class="section container grid">
+      {features.map((feature, index) => (
+        <article class={`feature reveal ${index % 3 === 1 ? 'd2' : index % 3 === 2 ? 'd3' : ''}`}>
+          <h2>{feature.title}</h2>
+          <ul>
+            {feature.items.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </article>
+      ))}
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .intro p {
+    max-width: 67ch;
+  }
+
+  .grid {
+    display: grid;
+    gap: 1.1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .feature {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: linear-gradient(165deg, var(--surface), var(--surface-soft));
+    padding: 1rem;
+  }
+
+  .feature h2 {
+    font-size: 1.24rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .feature ul {
+    margin: 0;
+    padding-left: 1rem;
+    display: grid;
+    gap: 0.4rem;
+    color: var(--muted);
+  }
+
+  @media (max-width: 960px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

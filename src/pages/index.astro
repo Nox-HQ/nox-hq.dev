@@ -1,0 +1,606 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { pluginTotalCount } from '../data/plugins';
+
+const stats = [
+  { label: 'Security rules', value: '1506+' },
+  { label: 'Plugins', value: String(pluginTotalCount) },
+  { label: 'Security tracks', value: '10' },
+  { label: 'Output formats', value: '6' },
+];
+
+const trustLogos = ['GitHub Actions', 'MCP', 'SARIF', 'CycloneDX', 'SPDX', 'OWASP LLM Top 10', 'OWASP Agentic'];
+
+const detects = [
+  {
+    category: 'Secrets',
+    count: '938',
+    color: 'var(--blue)',
+    desc: 'API keys, tokens, and credentials across 25+ provider categories with high-entropy and pattern-based detection.',
+  },
+  {
+    category: 'AI Security',
+    count: '50',
+    color: 'var(--cyan)',
+    desc: 'Prompt injection, tool safety, model provenance, and full OWASP LLM Top 10 coverage.',
+  },
+  {
+    category: 'Infrastructure',
+    count: '500',
+    color: 'var(--violet)',
+    desc: 'Terraform, Kubernetes, Docker, GitHub Actions, Helm, Ansible, and cross-resource graph analysis.',
+  },
+  {
+    category: 'Dependencies',
+    count: 'SCA',
+    color: 'var(--magenta)',
+    desc: 'Software composition analysis with OSV.dev vulnerability lookups and license compliance.',
+  },
+  {
+    category: 'Data Protection',
+    count: '12',
+    color: 'var(--cyan)',
+    desc: 'PII detection rules for email, SSN, credit card, phone number, and healthcare identifiers.',
+  },
+];
+
+const pillars = [
+  {
+    title: 'Deterministic by design',
+    text: 'Same inputs produce same outputs across local development and CI. No hidden state, no external service dependencies, no flaky results.',
+  },
+  {
+    title: 'AI security is not an afterthought',
+    text: 'First-class OWASP LLM Top 10 and OWASP Agentic coverage alongside traditional AppSec. Prompt injection, tool safety, and model provenance are built into the core engine.',
+  },
+  {
+    title: 'Agent-native via MCP',
+    text: 'Built-in MCP server with 10 read-only tools and 5 resources. AI agents can query scan results safely without write access or code execution.',
+  },
+];
+
+const formats = [
+  { name: 'findings.json', label: 'JSON', desc: 'Canonical findings schema for automation' },
+  { name: 'results.sarif', label: 'SARIF', desc: 'GitHub Code Scanning compatible (SARIF 2.1.0)' },
+  { name: 'sbom.cdx.json', label: 'CycloneDX', desc: 'Primary SBOM format with vulnerability data' },
+  { name: 'sbom.spdx.json', label: 'SPDX', desc: 'Secondary SBOM format for license compliance' },
+  { name: 'report.html', label: 'HTML', desc: 'Standalone dark-theme dashboard with filtering' },
+  { name: 'ai.inventory.json', label: 'AI Inventory', desc: 'AI component inventory with provenance' },
+];
+
+const steps = [
+  {
+    num: '01',
+    title: 'Install and scan',
+    code: 'brew install nox\nnox scan .',
+  },
+  {
+    num: '02',
+    title: 'Enforce in CI',
+    code: `- name: Run NOX
+  uses: nox-hq/nox-action@v1
+  with:
+    args: scan . --format sarif --output results.sarif
+- name: Upload SARIF
+  uses: github/codeql-action/upload-sarif@v3
+  with:
+    sarif_file: results.sarif`,
+  },
+  {
+    num: '03',
+    title: 'Extend with plugins',
+    code: 'nox plugin install nox/sast\nnox plugin install nox/grc\nnox scan . --plugins all',
+  },
+];
+---
+
+<BaseLayout
+  title="NOX — Security Scanning for the AI Era"
+  description="Language-agnostic, deterministic, agent-native security scanner. 1506+ rules across secrets, AI security, infrastructure, and dependencies."
+>
+  <main>
+    <!-- Hero -->
+    <section class="section hero container">
+      <div class="cols-2 hero-grid">
+        <div class="reveal">
+          <p class="kicker">Open-source security scanner</p>
+          <h1>Security scanning for the AI era</h1>
+          <p class="lede">
+            Language-agnostic. Deterministic. Agent-native. One scanner for secrets, AI risk, infrastructure, and dependencies with policy-ready outputs.
+          </p>
+          <div class="actions">
+            <a class="btn solid" href="/get-started">Get Started</a>
+            <a class="btn ghost" href="https://github.com/nox-hq/nox" target="_blank" rel="noreferrer">View on GitHub</a>
+          </div>
+        </div>
+
+        <aside class="hero-panel reveal d2" aria-label="Platform statistics">
+          <p class="panel-title">Platform snapshot</p>
+          <div class="proof-grid">
+            {stats.map(({ label, value }) => (
+              <article>
+                <p>{label}</p>
+                <strong class="metric-value">{value}</strong>
+              </article>
+            ))}
+          </div>
+          <pre><code>brew install nox</code></pre>
+        </aside>
+      </div>
+
+      <ul class="trust-strip reveal d3" aria-label="Supported ecosystem">
+        {trustLogos.map((item) => (
+          <li>{item}</li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- What Nox Detects -->
+    <section class="section container">
+      <div class="detect-header">
+        <p class="kicker">Detection coverage</p>
+        <h2>What Nox detects</h2>
+        <p>Five analyzer suites covering the full attack surface of modern applications.</p>
+      </div>
+      <div class="detect-grid">
+        {detects.map((d, i) => (
+          <article class={`detect-card reveal ${i % 3 === 1 ? 'd2' : i % 3 === 2 ? 'd3' : ''}`}>
+            <div class="detect-top">
+              <span class="detect-count" style={`color: ${d.color}`}>{d.count}</span>
+              <span class="detect-label">{d.category}</span>
+            </div>
+            <p>{d.desc}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- Terminal Demo -->
+    <section class="section container">
+      <div class="terminal-section">
+        <div>
+          <p class="kicker">In action</p>
+          <h2>Fast, focused output</h2>
+          <p>Nox completes a full scan in seconds and writes machine-readable artifacts. No configuration required for a first run.</p>
+        </div>
+        <div class="terminal reveal">
+          <div class="terminal-bar">
+            <span class="terminal-dot"></span>
+            <span class="terminal-dot"></span>
+            <span class="terminal-dot"></span>
+            <span class="terminal-title">Terminal</span>
+          </div>
+          <pre><code><span class="t-prompt">$</span> nox scan .
+<span class="t-dim">nox v0.6.0 — scanning .</span>
+
+<span class="t-cyan">[discover]</span> 847 files, 12 lockfiles, 3 AI components
+<span class="t-cyan">[analyze]</span> secrets, iac, deps, ai, data
+<span class="t-cyan">[results]</span> 12 findings (3 suppressed), 47 dependencies, 3 AI components
+<span class="t-green">[done]</span> wrote findings.json, results.sarif, sbom.cdx.json
+
+<span class="t-prompt">$</span> nox scan . --format html --output report.html
+<span class="t-green">[done]</span> wrote report.html</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Three Pillars -->
+    <section class="section container">
+      <div class="cols-3 pillars">
+        {pillars.map((pillar, i) => (
+          <article class={`pillar-card reveal ${i === 1 ? 'd2' : i === 2 ? 'd3' : ''}`}>
+            <h2>{pillar.title}</h2>
+            <p>{pillar.text}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- Output Formats -->
+    <section class="section container">
+      <div class="formats-header">
+        <p class="kicker">Standard artifacts</p>
+        <h2>Six output formats, zero vendor lock-in</h2>
+        <p>Every scan produces standard artifacts that integrate with existing security tooling and compliance workflows.</p>
+      </div>
+      <div class="formats-grid">
+        {formats.map((f, i) => (
+          <article class={`format-card reveal ${i % 3 === 1 ? 'd2' : i % 3 === 2 ? 'd3' : ''}`}>
+            <code>{f.name}</code>
+            <strong>{f.label}</strong>
+            <p>{f.desc}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- Adoption Workflow -->
+    <section class="section container">
+      <div class="adopt-header">
+        <p class="kicker">Adoption workflow</p>
+        <h2>From first scan to full enforcement in three steps.</h2>
+      </div>
+      <div class="steps-grid">
+        {steps.map((step) => (
+          <article class="step-card reveal">
+            <span class="step-num">{step.num}</span>
+            <div>
+              <h3>{step.title}</h3>
+              <pre><code>{step.code}</code></pre>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- Open Source CTA -->
+    <section class="section container cta-section">
+      <div class="cta-box reveal">
+        <h2>Open source under Apache 2.0</h2>
+        <p>Nox is free to use, modify, and distribute. Contributions welcome.</p>
+        <div class="cta-actions">
+          <a class="btn solid" href="/get-started">Get Started</a>
+          <a class="btn ghost" href="https://github.com/nox-hq/nox" target="_blank" rel="noreferrer">Star on GitHub</a>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .hero {
+    padding-top: clamp(2rem, 6vw, 4rem);
+  }
+
+  .hero-grid {
+    align-items: start;
+  }
+
+  .lede {
+    max-width: 58ch;
+  }
+
+  .actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+  }
+
+  .hero-panel {
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: linear-gradient(165deg, var(--surface), var(--surface-soft));
+    padding: 1rem;
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .panel-title {
+    margin: 0;
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.86rem;
+  }
+
+  .proof-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+
+  .proof-grid p {
+    margin: 0 0 0.25rem;
+    font-size: 0.78rem;
+    line-height: 1.35;
+  }
+
+  .trust-strip {
+    margin: 1rem 0 0;
+    padding: 0.65rem 0 0;
+    border-top: 1px solid var(--line);
+    list-style: none;
+    display: flex;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+  }
+
+  .trust-strip li {
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.32rem 0.6rem;
+    font-size: 0.78rem;
+    background: var(--surface);
+  }
+
+  /* Detection section */
+  .detect-header {
+    margin-bottom: 1.2rem;
+  }
+
+  .detect-header p:last-child {
+    max-width: 60ch;
+  }
+
+  .detect-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .detect-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: linear-gradient(165deg, var(--surface), var(--surface-soft));
+    padding: 1rem;
+  }
+
+  .detect-top {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .detect-count {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .detect-label {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .detect-card p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  /* Terminal Demo */
+  .terminal-section {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .terminal-section p:last-child {
+    max-width: 44ch;
+  }
+
+  .terminal {
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid #24376d;
+  }
+
+  .terminal-bar {
+    background: #0d1e45;
+    padding: 0.55rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .terminal-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #2a3a63;
+  }
+
+  .terminal-dot:first-child {
+    background: #ff5f57;
+  }
+
+  .terminal-dot:nth-child(2) {
+    background: #febc2e;
+  }
+
+  .terminal-dot:nth-child(3) {
+    background: #28c840;
+  }
+
+  .terminal-title {
+    margin-left: 0.5rem;
+    font-size: 0.76rem;
+    color: #7a8fc0;
+  }
+
+  .terminal pre {
+    border: 0;
+    border-radius: 0;
+    padding: 0.85rem 1rem;
+    font-size: 0.84rem;
+    line-height: 1.6;
+  }
+
+  .terminal :global(.t-prompt) {
+    color: #7a6bff;
+    font-weight: 700;
+  }
+
+  .terminal :global(.t-dim) {
+    color: #6a7faa;
+  }
+
+  .terminal :global(.t-cyan) {
+    color: #39c8f4;
+  }
+
+  .terminal :global(.t-green) {
+    color: #28c840;
+  }
+
+  /* Pillars */
+  .pillars article {
+    padding-right: 0.3rem;
+  }
+
+  .pillar-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: linear-gradient(165deg, var(--surface), var(--surface-soft));
+    padding: 1.1rem;
+  }
+
+  .pillar-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .pillar-card p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  /* Formats */
+  .formats-header {
+    margin-bottom: 1.2rem;
+  }
+
+  .formats-header p:last-child {
+    max-width: 62ch;
+  }
+
+  .formats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9rem;
+  }
+
+  .format-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+    padding: 0.9rem;
+  }
+
+  .format-card code {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--code-accent);
+    margin-bottom: 0.3rem;
+  }
+
+  .format-card strong {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .format-card p {
+    margin: 0;
+    font-size: 0.84rem;
+    line-height: 1.45;
+  }
+
+  /* Adoption Steps */
+  .adopt-header {
+    margin-bottom: 1.2rem;
+  }
+
+  .steps-grid {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .step-card {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 0.9rem;
+    align-items: start;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+    padding: 1rem;
+  }
+
+  .step-num {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--surface-soft);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .step-card h3 {
+    font-size: 1.1rem;
+    margin: 0 0 0.55rem;
+  }
+
+  .step-card pre {
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+
+  /* CTA */
+  .cta-section {
+    border-top: 0;
+  }
+
+  .cta-box {
+    text-align: center;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: linear-gradient(165deg, var(--surface), var(--surface-soft));
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  .cta-box h2 {
+    margin-bottom: 0.4rem;
+  }
+
+  .cta-box p {
+    max-width: 46ch;
+    margin: 0 auto 1rem;
+  }
+
+  .cta-actions {
+    display: flex;
+    gap: 0.65rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 960px) {
+    .detect-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .terminal-section {
+      grid-template-columns: 1fr;
+    }
+
+    .formats-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .proof-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 720px) {
+    .step-card {
+      grid-template-columns: 1fr;
+    }
+
+    .proof-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

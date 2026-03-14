@@ -1,0 +1,184 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { pluginTracks, pluginTotalCount } from '../data/plugins';
+
+const ciSafeCount = pluginTracks.filter((track) => track.ciSafe === 'yes').length;
+const trackCount = pluginTracks.length;
+---
+
+<BaseLayout title="NOX — Plugin Catalog" description="All NOX plugin tracks and plugins.">
+  <main>
+    <section class="section container intro">
+      <p class="kicker">Plugin ecosystem</p>
+      <h1>Track-based plugin architecture with explicit safety context.</h1>
+      <p>
+        NOX ships {trackCount} tracks and {pluginTotalCount} plugins. Each track publishes risk class, CI safety, and offline capability to support predictable rollout decisions.
+      </p>
+
+      <div class="summary reveal">
+        <article>
+          <p>Total tracks</p>
+          <strong class="metric-value">{trackCount}</strong>
+        </article>
+        <article>
+          <p>Total plugins</p>
+          <strong class="metric-value">{pluginTotalCount}</strong>
+        </article>
+        <article>
+          <p>CI-safe tracks</p>
+          <strong class="metric-value">{ciSafeCount}</strong>
+        </article>
+      </div>
+    </section>
+
+    <section class="section container catalog" aria-label="Plugin track catalog">
+      {pluginTracks.map((track, index) => (
+        <details class={`track reveal ${index % 3 === 1 ? 'd2' : index % 3 === 2 ? 'd3' : ''}`} open={index < 3}>
+          <summary>
+            <div>
+              <p class="track-id">Track {track.number}</p>
+              <h2>{track.title}</h2>
+              <p class="track-desc">{track.description}</p>
+            </div>
+            <ul>
+              <li>{track.riskClass}</li>
+              <li>CI {track.ciSafe}</li>
+              <li>Offline {track.offline}</li>
+              <li>RO {track.readOnly}</li>
+            </ul>
+          </summary>
+
+          <ul class="plugins">
+            {track.plugins.map((plugin) => (
+              <li>
+                <code>{plugin.name}</code>
+                <span>{plugin.summary}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ))}
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .intro p {
+    max-width: 74ch;
+  }
+
+  .summary {
+    margin-top: 1rem;
+    display: grid;
+    gap: 0.8rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .summary article {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: linear-gradient(165deg, var(--surface), var(--surface-soft));
+    padding: 0.85rem;
+  }
+
+  .summary p {
+    margin: 0 0 0.3rem;
+    font-size: 0.8rem;
+  }
+
+  .catalog {
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  .track {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+    padding: 0.85rem;
+  }
+
+  .track summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .track summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .track-id {
+    margin: 0;
+    color: var(--cyan);
+    font-size: 0.73rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .track h2 {
+    margin: 0.3rem 0 0;
+    font-size: 1.2rem;
+  }
+
+  .track-desc {
+    margin: 0.45rem 0 0;
+    max-width: 64ch;
+    font-size: 0.92rem;
+  }
+
+  .track summary ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .track summary li {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.28rem 0.52rem;
+    font-size: 0.76rem;
+    color: var(--muted);
+    text-transform: capitalize;
+    background: var(--surface-soft);
+  }
+
+  .plugins {
+    margin: 0.8rem 0 0;
+    padding: 0.8rem 0 0 1rem;
+    border-top: 1px solid var(--line);
+    display: grid;
+    gap: 0.44rem;
+  }
+
+  .plugins li {
+    display: grid;
+    gap: 0.16rem;
+  }
+
+  .plugins code {
+    color: var(--code-accent);
+    font-size: 0.86rem;
+  }
+
+  .plugins span {
+    color: var(--muted);
+    font-size: 0.88rem;
+  }
+
+  @media (max-width: 960px) {
+    .summary {
+      grid-template-columns: 1fr;
+    }
+
+    .track summary {
+      flex-direction: column;
+    }
+  }
+</style>

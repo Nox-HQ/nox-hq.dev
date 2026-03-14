@@ -1,0 +1,233 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="NOX — Get Started" description="Install and run NOX in minutes.">
+  <main>
+    <section class="section container intro">
+      <p class="kicker">Get started</p>
+      <h1>From install to enforcement in minutes.</h1>
+      <p>Start with the smallest useful workflow, then add CI enforcement and plugins incrementally.</p>
+    </section>
+
+    <section class="section container timeline">
+      <article class="step reveal">
+        <span class="step-num">01</span>
+        <div>
+          <h2>Install</h2>
+          <p class="step-desc">Choose the install method that fits your environment.</p>
+          <div class="install-methods">
+            <div class="install-method">
+              <p class="method-label">Homebrew</p>
+              <pre><code>brew install nox</code></pre>
+            </div>
+            <div class="install-method">
+              <p class="method-label">Go</p>
+              <pre><code>go install github.com/nox-hq/nox/cli@latest</code></pre>
+            </div>
+            <div class="install-method">
+              <p class="method-label">Docker</p>
+              <pre><code>docker run --rm -v $(pwd):/workspace ghcr.io/nox-hq/nox scan /workspace</code></pre>
+            </div>
+            <div class="install-method">
+              <p class="method-label">Build from source</p>
+              <pre><code>git clone https://github.com/nox-hq/nox.git
+cd nox && go build -o nox ./cli</code></pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="step reveal d2">
+        <span class="step-num">02</span>
+        <div>
+          <h2>First scan</h2>
+          <p class="step-desc">Run a full scan with zero configuration. Nox auto-discovers files, lockfiles, and AI components.</p>
+          <pre><code>nox scan .</code></pre>
+          <pre class="output"><code><span class="t-dim">nox v0.6.0 — scanning .</span>
+<span class="t-cyan">[results]</span> 12 findings, 47 dependencies, 3 AI components
+<span class="t-green">[done]</span> wrote findings.json</code></pre>
+        </div>
+      </article>
+
+      <article class="step reveal d3">
+        <span class="step-num">03</span>
+        <div>
+          <h2>CI integration</h2>
+          <p class="step-desc">Add Nox to your GitHub Actions workflow with SARIF upload for Code Scanning alerts.</p>
+          <pre><code>name: Security Scan
+on: [push, pull_request]
+jobs:
+  nox:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run NOX
+        uses: nox-hq/nox-action@v1
+        with:
+          args: scan . --format sarif --output results.sarif
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif</code></pre>
+        </div>
+      </article>
+
+      <article class="step reveal">
+        <span class="step-num">04</span>
+        <div>
+          <h2>Dashboard</h2>
+          <p class="step-desc">Generate a standalone HTML report for visual inspection and team review.</p>
+          <pre><code>nox scan . --format html --output report.html
+nox dashboard .</code></pre>
+        </div>
+      </article>
+
+      <article class="step reveal d2">
+        <span class="step-num">05</span>
+        <div>
+          <h2>Configure</h2>
+          <p class="step-desc">Create a <code>.nox.yaml</code> to customize severity thresholds, rule overrides, and output paths.</p>
+          <pre><code># .nox.yaml
+severity: medium
+formats:
+  - json
+  - sarif
+  - cdx
+output: reports/
+rules:
+  SEC-042:
+    severity: critical
+  IAC-101:
+    enabled: false
+suppress:
+  - id: SEC-007
+    reason: "Test credential, rotated weekly"
+    expires: "2026-06-01"</code></pre>
+        </div>
+      </article>
+
+      <article class="step reveal d3">
+        <span class="step-num">06</span>
+        <div>
+          <h2>Extend with plugins</h2>
+          <p class="step-desc">Install plugins for deeper analysis across 9 specialized security tracks.</p>
+          <pre><code>nox plugin install nox/sast
+nox plugin install nox/grc
+nox plugin install nox/k8s-runtime
+nox plugin list
+nox scan . --plugins all</code></pre>
+        </div>
+      </article>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .intro p {
+    max-width: 67ch;
+  }
+
+  .timeline {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 0.9rem;
+    align-items: start;
+    padding-top: 0.4rem;
+  }
+
+  .step + .step {
+    border-top: 1px solid var(--line);
+    padding-top: 1rem;
+  }
+
+  .step-num {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .step h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .step-desc {
+    max-width: 60ch;
+    margin: 0 0 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .step-desc code {
+    color: var(--code-accent);
+    font-size: 0.86rem;
+  }
+
+  .install-methods {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+  }
+
+  .install-method {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    padding: 0.7rem;
+  }
+
+  .method-label {
+    margin: 0 0 0.35rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .install-method pre {
+    font-size: 0.8rem;
+    padding: 0.6rem 0.75rem;
+  }
+
+  pre.output {
+    margin-top: 0.5rem;
+    opacity: 0.85;
+  }
+
+  pre.output :global(.t-dim) {
+    color: #6a7faa;
+  }
+
+  pre.output :global(.t-cyan) {
+    color: #39c8f4;
+  }
+
+  pre.output :global(.t-green) {
+    color: #28c840;
+  }
+
+  @media (max-width: 960px) {
+    .install-methods {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .step {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
