@@ -48,7 +48,11 @@ const pathname = Astro.url.pathname;
         </nav>
 
         <div class="header-actions">
-          <button class="btn ghost nav toggle" id="theme-toggle" type="button" aria-label="Theme: Auto">Theme: Auto</button>
+          <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">
+            <svg class="icon icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="icon icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <svg class="icon icon-auto" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20V2z" fill="currentColor" stroke="none"/></svg>
+          </button>
           <a class="btn ghost nav" href="https://github.com/Nox-HQ/nox" target="_blank" rel="noreferrer">GitHub</a>
         </div>
       </div>
@@ -73,6 +77,17 @@ const pathname = Astro.url.pathname;
           return value === 'light' || value === 'dark' ? value : 'auto';
         };
 
+        const updateIcon = (theme) => {
+          button.querySelectorAll('.icon').forEach(i => i.style.display = 'none');
+          if (theme === 'light') {
+            button.querySelector('.icon-sun').style.display = 'block';
+          } else if (theme === 'dark') {
+            button.querySelector('.icon-moon').style.display = 'block';
+          } else {
+            button.querySelector('.icon-auto').style.display = 'block';
+          }
+        };
+
         const apply = (theme) => {
           if (theme === 'auto') {
             root.removeAttribute('data-theme');
@@ -81,9 +96,10 @@ const pathname = Astro.url.pathname;
             root.setAttribute('data-theme', theme);
             localStorage.setItem(key, theme);
           }
-          const label = `Theme: ${theme[0].toUpperCase()}${theme.slice(1)}`;
-          button.textContent = label;
-          button.setAttribute('aria-label', label);
+          const labels = { auto: 'System theme', light: 'Light theme', dark: 'Dark theme' };
+          button.setAttribute('aria-label', labels[theme]);
+          button.setAttribute('title', labels[theme]);
+          updateIcon(theme);
         };
 
         let current = read();
@@ -163,9 +179,28 @@ const pathname = Astro.url.pathname;
     gap: 0.42rem;
   }
 
-  .toggle {
+  .theme-toggle {
     cursor: pointer;
-    font: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--btn-nav-bg);
+    color: var(--muted);
+    padding: 0;
+    transition: border-color 180ms ease, color 180ms ease;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--nav-pill-active-border);
+    color: var(--text);
+  }
+
+  .theme-toggle .icon {
+    display: none;
   }
 
   .footer {
