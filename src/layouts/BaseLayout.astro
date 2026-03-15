@@ -10,10 +10,13 @@ import { siteNav } from '../data/site';
 interface Props {
   title: string;
   description: string;
+  ogImage?: string;
 }
 
-const { title, description } = Astro.props;
+const { title, description, ogImage = '/og-image.png' } = Astro.props;
 const pathname = Astro.url.pathname;
+const canonicalURL = new URL(pathname, 'https://nox-hq.dev').href;
+const ogImageURL = new URL(ogImage, 'https://nox-hq.dev').href;
 ---
 
 <html lang="en">
@@ -23,7 +26,27 @@ const pathname = Astro.url.pathname;
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <link rel="icon" type="image/png" href="/nox-logo.png" />
+    <link rel="canonical" href={canonicalURL} />
     <title>{title}</title>
+
+    <!-- OpenGraph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:site_name" content="Nox" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageURL} />
+
+    <!-- Additional SEO -->
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#090f23" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f6f9ff" media="(prefers-color-scheme: light)" />
     <script is:inline>
       (() => {
         const saved = localStorage.getItem('nox-theme');
@@ -63,6 +86,20 @@ const pathname = Astro.url.pathname;
     <footer class="container footer">
       <p>NOX is open source under Apache-2.0.</p>
     </footer>
+
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Nox",
+      "description": "Language-agnostic security scanner with first-class AI application security.",
+      "url": "https://nox-hq.dev",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "macOS, Linux, Windows",
+      "license": "https://opensource.org/licenses/Apache-2.0",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "codeRepository": "https://github.com/nox-hq/nox",
+      "programmingLanguage": "Go"
+    })} />
 
     <script is:inline>
       (() => {
