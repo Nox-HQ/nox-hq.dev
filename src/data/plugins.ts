@@ -1,6 +1,10 @@
 export type PluginEntry = {
   name: string;
   summary: string;
+  /** Whether the plugin is published in the official registry with a
+   * Cosign keyless signature. Surfaced as a "✓ Verified" badge on the
+   * marketplace page and used to filter the featured row. */
+  verified?: boolean;
 };
 
 export type PluginTrack = {
@@ -34,6 +38,8 @@ export const pluginTracks: PluginTrack[] = [
       { name: 'nox-plugin-sast', summary: 'Language-specific vulnerability detection (SQL injection, XSS, path traversal)' },
       { name: 'nox-plugin-logic-scan', summary: 'Business logic vulnerability detection with optional AI analysis' },
       { name: 'nox-plugin-mcp-scan', summary: 'MCP server configuration security analysis (8 rules)' },
+      { name: 'nox-plugin-reachability', summary: 'Multi-language reachability for VULN findings (Go, PyPI, npm, Cargo, Maven, RubyGems, NuGet)', verified: true },
+      { name: 'nox-plugin-taint-analysis', summary: 'Cross-file & interprocedural taint flow including AI source-to-sink (TAINT-001..007 + TAINT-AI-001/002)', verified: true },
     ],
   },
   {
@@ -51,8 +57,9 @@ export const pluginTracks: PluginTrack[] = [
       { name: 'nox-plugin-api-abuse', summary: 'API authorization testing (BOLA, BFLA, rate-limit)' },
       { name: 'nox-plugin-attack-surface', summary: 'Static endpoint extraction and exposure mapping' },
       { name: 'nox-plugin-dast', summary: 'DAST web/API scanning (passive and active modes)' },
-      { name: 'nox-plugin-k8s-runtime', summary: 'Live Kubernetes cluster security scanning (8 rules)' },
-      { name: 'nox-plugin-red-team', summary: 'Attack chain analysis and HTTP validation (10 rules)' },
+      { name: 'nox-plugin-k8s-runtime', summary: 'Live Kubernetes cluster security scanning (KRUNT-001..008)', verified: true },
+      { name: 'nox-plugin-red-team', summary: 'Attack chain analysis and HTTP validation (REDTEAM-001..010)', verified: true },
+      { name: 'nox-plugin-ai-eval', summary: 'Adversarial prompt corpus runner — jailbreak / system-leak / role-confusion / tool-misuse against a chat endpoint (AI-EVAL-001..004)', verified: true },
     ],
   },
   {
@@ -85,7 +92,7 @@ export const pluginTracks: PluginTrack[] = [
       { name: 'nox-plugin-baseline-mgmt', summary: 'Finding baseline snapshots, diff, and triage' },
       { name: 'nox-plugin-policy-gate', summary: 'Policy evaluation and CI gate (pass/fail)' },
       { name: 'nox-plugin-risk-register', summary: 'Risk register generation and trend tracking' },
-      { name: 'nox-plugin-grc', summary: 'GRC compliance assessment across 12 frameworks including FedRAMP' },
+      { name: 'nox-plugin-grc', summary: 'GRC compliance assessment across 12 frameworks (SOC2, ISO 27001, GDPR, FedRAMP L/M/H, HIPAA, PCI-DSS, NIST 800-53, NIST CSF, CIS v8, CMMC)', verified: true },
     ],
   },
   {
@@ -169,3 +176,12 @@ export const pluginTracks: PluginTrack[] = [
 ];
 
 export const pluginTotalCount = pluginTracks.reduce((total, track) => total + track.plugins.length, 0);
+
+/** Cosign-keyless-signed plugins surfaced as the featured "Verified
+ * marketplace" row on the homepage and at the top of /plugins. The
+ * order is curated for marketing impact (security depth first, then
+ * AI-specific differentiators). */
+export const verifiedPlugins: PluginEntry[] = pluginTracks
+  .flatMap((t) => t.plugins.map((p) => ({ ...p, _track: t.id })))
+  .filter((p) => p.verified)
+  .map(({ _track, ...rest }) => rest);

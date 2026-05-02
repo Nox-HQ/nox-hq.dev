@@ -5,19 +5,41 @@ const features = [
   {
     title: 'Detection Engine',
     items: [
-      '1506+ security rules across 5 analyzer suites',
+      '717 security rules (568 core + 149 plugin) across 5 analyzer suites',
       'Secrets, AI security, IaC, dependencies, and data sensitivity in one scan',
       'Deterministic execution with offline-first defaults',
       'Rule configuration and severity overrides through .nox.yaml',
     ],
   },
   {
-    title: 'AI Security',
+    title: 'AI Security (first-class)',
     items: [
-      'Full OWASP LLM Top 10 coverage with 50 dedicated rules',
-      'Prompt injection and RAG boundary violation detection',
-      'MCP server configuration security analysis',
-      'Model provenance, tool safety, and AI-BOM v2.0 generation',
+      'Prompt injection at the call site (AI-PI-*, OWASP LLM01)',
+      'Embedding leakage when secrets / PII reach vector stores (LLM06)',
+      'Agent over-privilege when file_read + http_request share a context (LLM07)',
+      'Cross-file AI taint — request.json → service hop → chat.completions.create',
+      'MCP server hardening misconfigs (MCP-001..008)',
+      'Polyglot AIBOM v2.0 — every model invocation, auth env, and endpoint',
+    ],
+  },
+  {
+    title: 'Cosign-signed Marketplace',
+    items: [
+      'Sigstore keyless OIDC signatures on every official plugin release',
+      'Default trust policy refuses unsigned drops (fails closed)',
+      'Trust chain: cosign(checksums.txt) ⇒ tarball SHA ⇒ registry digest',
+      'Verified plugins promote to TrustCommunity without operator-managed keys',
+      'Optional Ed25519 signer keyring for enterprise-restricted environments',
+    ],
+  },
+  {
+    title: 'Manifest-driven plugins (.nox.yaml)',
+    items: [
+      'Declare plugins.required like dependencies in package.json',
+      'nox install fetches the pinned set, signature-verified',
+      'nox scan auto-installs missing required plugins on first run',
+      'plugins.trust_policy: default | enterprise | permissive',
+      'Per-project registry overrides for private plugin distribution',
     ],
   },
   {
@@ -27,6 +49,7 @@ const features = [
       'CycloneDX and SPDX SBOM generation',
       'Standalone HTML dashboard with dark theme and filtering',
       'AI inventory JSON with connection graph and tool matrix',
+      'OpenVEX waiver support — fingerprint-pinned and rule-ID-matching',
     ],
   },
   {
@@ -34,26 +57,27 @@ const features = [
     items: [
       'Fail/warn thresholds for CI policy gates',
       'Baseline management for known findings and controlled suppression',
-      'GRC compliance assessment across 12 frameworks including FedRAMP',
-      'Inline suppressions with audit trail',
+      'GRC compliance across 12 frameworks (SOC2, ISO 27001, GDPR, FedRAMP L/M/H, HIPAA, PCI-DSS, NIST 800-53, NIST CSF, CIS v8, CMMC) via plugin',
+      'Inline suppressions with audit trail and expiry',
     ],
   },
   {
     title: 'Plugin Ecosystem',
     items: [
       '32 plugins across 9 tracks with gRPC-based SDK',
+      '6 published in the official registry, all Cosign-verified',
       'Track-based architecture with explicit risk classification',
       'Plugin scaffolding via nox plugin init',
-      'Registry support for discovery and distribution',
     ],
   },
   {
-    title: 'MCP Server',
+    title: 'Agent-native via MCP',
     items: [
       '10 read-only tools for AI agent integration',
       '5 MCP resources for artifact serving',
       'Workspace allowlisting and output size limits',
       'Sandboxed execution with rate limiting',
+      'Drop-in for Claude Desktop, Cursor, Continue, any MCP host',
     ],
   },
   {
@@ -63,14 +87,15 @@ const features = [
       'Pre-commit hooks and shell completions',
       'Incremental scan cache with content-addressed SHA-256',
       'Differential scanning with --changed-since for fast CI',
+      'nox bench --autocorpus — reproducible fire-rate vs. real LLM SDK repos',
     ],
   },
   {
     title: 'Supply Chain Security',
     items: [
-      'Cosign keyless signing for release artifacts',
+      'Cosign keyless signing on the nox CLI itself + every plugin',
       'SLSA Level 3 provenance attestation',
-      'CycloneDX and SPDX SBOM generation',
+      'Multi-platform builds (linux/darwin/windows × amd64/arm64)',
       'Dependency confusion detection and artifact integrity verification',
     ],
   },

@@ -1,46 +1,46 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { pluginTotalCount } from '../data/plugins';
+import { pluginTotalCount, verifiedPlugins } from '../data/plugins';
 
 const stats = [
-  { label: 'Security rules', value: '1506+' },
+  { label: 'Security rules', value: '717' },
   { label: 'Plugins', value: String(pluginTotalCount) },
-  { label: 'Security tracks', value: '10' },
+  { label: 'Verified in marketplace', value: String(verifiedPlugins.length) },
   { label: 'Output formats', value: '6' },
 ];
 
-const trustLogos = ['GitHub Actions', 'MCP', 'SARIF', 'CycloneDX', 'SPDX', 'OWASP LLM Top 10', 'OWASP Agentic'];
+const trustLogos = ['Sigstore', 'GitHub Actions', 'MCP', 'SARIF', 'CycloneDX', 'SPDX', 'OWASP LLM Top 10', 'OWASP Agentic'];
 
 const detects = [
   {
     category: 'Secrets',
-    count: '938',
+    count: '160',
     color: 'var(--blue)',
-    desc: 'API keys, tokens, and credentials across 25+ provider categories with high-entropy and pattern-based detection.',
+    desc: 'API keys, tokens, and credentials across major cloud, SaaS, and CI providers with pattern + entropy detection.',
   },
   {
     category: 'AI Security',
-    count: '50',
+    count: '21',
     color: 'var(--cyan)',
-    desc: 'Prompt injection, tool safety, model provenance, and full OWASP LLM Top 10 coverage.',
+    desc: 'Prompt injection at the call site, embedding leakage, agent over-privilege, MCP hardening, AI taint flow — full OWASP LLM Top 10 + Agentic coverage.',
   },
   {
     category: 'Infrastructure',
-    count: '500',
+    count: '369',
     color: 'var(--violet)',
-    desc: 'Terraform, Kubernetes, Docker, GitHub Actions, Helm, Ansible, and cross-resource graph analysis.',
+    desc: 'Terraform, Kubernetes, Docker, GitHub Actions, Helm, Ansible, Kustomize, Serverless, plus cross-resource graph analysis.',
   },
   {
     category: 'Dependencies',
     count: 'SCA',
     color: 'var(--magenta)',
-    desc: 'Software composition analysis with OSV.dev vulnerability lookups and license compliance.',
+    desc: 'OSV.dev vulnerability lookups + reachability filtering + license compliance across 7 ecosystems.',
   },
   {
     category: 'Data Protection',
     count: '12',
     color: 'var(--cyan)',
-    desc: 'PII detection rules for email, SSN, credit card, phone number, and healthcare identifiers.',
+    desc: 'PII detection for email, SSN, credit card, phone numbers, and healthcare identifiers.',
   },
 ];
 
@@ -76,41 +76,56 @@ const steps = [
   },
   {
     num: '02',
-    title: 'Enforce in CI',
-    code: `- name: Run NOX
-  uses: nox-hq/nox-action@v1
-  with:
-    args: scan . --format sarif --output results.sarif
-- name: Upload SARIF
-  uses: github/codeql-action/upload-sarif@v3
-  with:
-    sarif_file: results.sarif`,
+    title: 'Declare plugins (.nox.yaml)',
+    code: `# .nox.yaml — package.json for security
+plugins:
+  required:
+    - nox/reachability
+    - nox/taint-analysis
+    - nox/grc
+
+# Anyone cloning your repo gets the right
+# verified plugins on first scan.`,
   },
   {
     num: '03',
-    title: 'Extend with plugins',
-    code: 'nox plugin install nox/sast\nnox plugin install nox/grc\nnox scan . --plugins all',
+    title: 'Enforce in CI',
+    code: `- uses: nox-hq/nox@v0.7.0
+  with:
+    path: '.'
+    format: sarif
+    annotate: 'true'
+- uses: github/codeql-action/upload-sarif@v3
+  with:
+    sarif_file: results.sarif`,
   },
 ];
 ---
 
 <BaseLayout
-  title="NOX — Security Scanning for the AI Era"
-  description="Language-agnostic, deterministic, agent-native security scanner. 1506+ rules across secrets, AI security, infrastructure, and dependencies."
+  title="Nox — The security scanner that understands your AI app"
+  description="Open-source security scanner with first-class AI app security: prompt injection at the call site, embedding leakage, agent over-privilege, MCP hardening, cross-file AI taint. 717 rules, Cosign-signed plugin marketplace, agent-native via MCP."
 >
   <main>
     <!-- Hero -->
     <section class="section hero container">
       <div class="cols-2 hero-grid">
         <div class="reveal">
-          <p class="kicker">Open-source security scanner</p>
-          <h1>Security scanning for the AI era</h1>
+          <p class="kicker">Open-source · Apache-2.0 · Offline-first</p>
+          <h1>The security scanner that understands your AI app.</h1>
           <p class="lede">
-            Language-agnostic. Deterministic. Agent-native. One scanner for secrets, AI risk, infrastructure, and dependencies with policy-ready outputs.
+            For teams shipping LLM features — `chat.completions.create`, RAG ingest, agents with tool calls, MCP servers — Nox catches what every other scanner misses, plus secrets, deps, IaC, and containers in one deterministic pass.
           </p>
+          <ul class="hero-bullets">
+            <li><strong>Prompt injection</strong> at the call site (OWASP LLM01)</li>
+            <li><strong>Embedding leakage</strong> when secrets / PII reach vector stores (LLM06)</li>
+            <li><strong>Agent over-privilege</strong> when `file_read` + `http_request` share an agent context (LLM07)</li>
+            <li><strong>Cross-file AI taint</strong> — `request.json` → service hop → `chat.completions.create` across functions and files</li>
+            <li><strong>Cosign-signed plugin marketplace</strong> — every official plugin verified via Sigstore keyless OIDC</li>
+          </ul>
           <div class="actions">
-            <a class="btn solid" href="/get-started">Get Started</a>
-            <a class="btn ghost" href="https://github.com/nox-hq/nox" target="_blank" rel="noreferrer">View on GitHub</a>
+            <a class="btn solid" href="/get-started">Install in 30 seconds</a>
+            <a class="btn ghost" href="https://github.com/nox-hq/nox" target="_blank" rel="noreferrer">Star on GitHub</a>
           </div>
         </div>
 
@@ -124,7 +139,8 @@ const steps = [
               </article>
             ))}
           </div>
-          <pre><code>brew install nox</code></pre>
+          <pre><code>$ brew install nox
+$ nox scan .</code></pre>
         </aside>
       </div>
 
@@ -133,6 +149,34 @@ const steps = [
           <li>{item}</li>
         ))}
       </ul>
+    </section>
+
+    <!-- Verified marketplace -->
+    <section class="section container">
+      <div class="market-header">
+        <p class="kicker">Cosign-signed plugin marketplace</p>
+        <h2>Plugins you can trust by default.</h2>
+        <p>
+          Every plugin in the official registry ships with a Sigstore keyless signature
+          tied to its release.yml workflow. Nox refuses install on unsigned drops unless
+          you explicitly relax the policy. Trust chain: `cosign(checksums.txt) ⇒ tarball
+          SHA-256 ⇒ registry digest`.
+        </p>
+      </div>
+      <div class="market-grid">
+        {verifiedPlugins.map((p, i) => (
+          <article class={`market-card reveal ${i % 3 === 1 ? 'd2' : i % 3 === 2 ? 'd3' : ''}`}>
+            <div class="market-top">
+              <code>nox/{p.name.replace(/^nox-plugin-/, '')}</code>
+              <span class="verified-badge" aria-label="Cosign keyless verified">✓ Verified</span>
+            </div>
+            <p>{p.summary}</p>
+          </article>
+        ))}
+      </div>
+      <p class="market-footer">
+        <a href="/plugins">Browse all {pluginTotalCount} plugins →</a>
+      </p>
     </section>
 
     <!-- What Nox Detects -->
@@ -171,15 +215,16 @@ const steps = [
             <span class="terminal-title">Terminal</span>
           </div>
           <pre><code><span class="t-prompt">$</span> nox scan .
-<span class="t-dim">nox v0.6.0 — scanning .</span>
+<span class="t-dim">nox — scanning .</span>
 
 <span class="t-cyan">[discover]</span> 847 files, 12 lockfiles, 3 AI components
 <span class="t-cyan">[analyze]</span> secrets, iac, deps, ai, data
 <span class="t-cyan">[results]</span> 12 findings (3 suppressed), 47 dependencies, 3 AI components
 <span class="t-green">[done]</span> wrote findings.json, results.sarif, sbom.cdx.json
 
-<span class="t-prompt">$</span> nox scan . --format html --output report.html
-<span class="t-green">[done]</span> wrote report.html</code></pre>
+<span class="t-prompt">$</span> nox plugin install nox/reachability
+<span class="t-cyan">Trust:</span> community (signer: cosign-keyless:.../release.yml@.*)
+<span class="t-green">Installed</span> nox/reachability@0.6.5 (community)</code></pre>
         </div>
       </div>
     </section>
@@ -260,6 +305,35 @@ const steps = [
     max-width: 58ch;
   }
 
+  .hero-bullets {
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.4rem;
+    max-width: 64ch;
+  }
+
+  .hero-bullets li {
+    color: var(--muted);
+    font-size: 0.92rem;
+    line-height: 1.5;
+    padding-left: 1.1rem;
+    position: relative;
+  }
+
+  .hero-bullets li::before {
+    content: '→';
+    color: var(--cyan);
+    position: absolute;
+    left: 0;
+    font-weight: 700;
+  }
+
+  .hero-bullets strong {
+    color: var(--text);
+  }
+
   .actions {
     margin-top: 1rem;
     display: flex;
@@ -312,6 +386,68 @@ const steps = [
     padding: 0.32rem 0.6rem;
     font-size: 0.78rem;
     background: var(--surface);
+  }
+
+  /* Verified marketplace */
+  .market-header {
+    margin-bottom: 1.2rem;
+  }
+
+  .market-header p:last-child {
+    max-width: 70ch;
+  }
+
+  .market-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .market-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: linear-gradient(165deg, var(--surface), var(--surface-soft));
+    padding: 1rem;
+  }
+
+  .market-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .market-top code {
+    font-size: 0.86rem;
+    color: var(--code-accent);
+  }
+
+  .verified-badge {
+    background: rgba(40, 200, 64, 0.1);
+    color: #28c840;
+    border: 1px solid rgba(40, 200, 64, 0.35);
+    border-radius: 999px;
+    padding: 0.18rem 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .market-card p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
+
+  .market-footer {
+    margin: 1rem 0 0;
+    text-align: right;
+  }
+
+  .market-footer a {
+    color: var(--cyan);
+    text-decoration: none;
   }
 
   /* Detection section */
@@ -586,6 +722,10 @@ const steps = [
     }
 
     .formats-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .market-grid {
       grid-template-columns: 1fr;
     }
 

@@ -1,5 +1,15 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+const mcpConfig = `# claude_desktop_config.json (or your MCP host)
+{
+  "mcpServers": {
+    "nox": {
+      "command": "nox",
+      "args": ["serve", "--allowed-paths", "/path/to/repo"]
+    }
+  }
+}`;
 ---
 
 <BaseLayout title="NOX — Get Started" description="Install and run NOX in minutes.">
@@ -44,7 +54,7 @@ cd nox && go build -o nox ./cli</code></pre>
           <h2>First scan</h2>
           <p class="step-desc">Run a full scan with zero configuration. Nox auto-discovers files, lockfiles, and AI components.</p>
           <pre><code>nox scan .</code></pre>
-          <pre class="output"><code><span class="t-dim">nox v0.6.0 — scanning .</span>
+          <pre class="output"><code><span class="t-dim">nox — scanning .</span>
 <span class="t-cyan">[results]</span> 12 findings, 47 dependencies, 3 AI components
 <span class="t-green">[done]</span> wrote findings.json</code></pre>
         </div>
@@ -54,7 +64,7 @@ cd nox && go build -o nox ./cli</code></pre>
         <span class="step-num">03</span>
         <div>
           <h2>CI integration</h2>
-          <p class="step-desc">Add Nox to your GitHub Actions workflow with SARIF upload for Code Scanning alerts.</p>
+          <p class="step-desc">Add Nox to your GitHub Actions workflow with inline PR annotations and SARIF upload for Code Scanning alerts.</p>
           <pre><code>name: Security Scan
 on: [push, pull_request]
 jobs:
@@ -62,12 +72,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run NOX
-        uses: nox-hq/nox-action@v1
+      - uses: nox-hq/nox@v0.7.0
         with:
-          args: scan . --format sarif --output results.sarif
-      - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v3
+          path: '.'
+          format: sarif
+          annotate: 'true'   # inline PR comments
+      - uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results.sarif</code></pre>
         </div>
@@ -110,13 +120,46 @@ suppress:
       <article class="step reveal d3">
         <span class="step-num">06</span>
         <div>
-          <h2>Extend with plugins</h2>
-          <p class="step-desc">Install plugins for deeper analysis across 9 specialized security tracks.</p>
-          <pre><code>nox plugin install nox/sast
-nox plugin install nox/grc
-nox plugin install nox/k8s-runtime
-nox plugin list
-nox scan . --plugins all</code></pre>
+          <h2>Declare plugins (.nox.yaml)</h2>
+          <p class="step-desc">Treat security plugins like dependencies. Pin them in <code>.nox.yaml</code> so anyone cloning your repo gets the same verified set on first scan.</p>
+          <pre><code># .nox.yaml — package.json for security
+plugins:
+  required:
+    - nox/reachability        # filter VULN by import reachability
+    - nox/taint-analysis      # cross-file + AI taint flow
+    - nox/k8s-runtime         # live cluster scanning
+    - nox/grc                 # 12 compliance frameworks
+  trust_policy: default       # require Cosign keyless or Ed25519
+
+# First scan auto-installs missing required plugins.
+# Verified end-to-end via Sigstore — install fails closed
+# on unsigned third-party drops.</code></pre>
+          <pre><code>nox install                  # fetch all required plugins
+nox scan .                   # auto-installs if missing</code></pre>
+        </div>
+      </article>
+
+      <article class="step reveal">
+        <span class="step-num">07</span>
+        <div>
+          <h2>Verify a release out-of-band</h2>
+          <p class="step-desc">Every plugin in the official registry signs its checksums via Sigstore keyless OIDC. The same chain Nox runs at install — reproducible by hand:</p>
+          <pre><code>cosign verify-blob \
+  --certificate-identity-regexp \
+    "https://github.com/nox-hq/nox-plugin-reachability/.github/workflows/release.yml@.*" \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  --bundle checksums.txt.sig.bundle \
+  --new-bundle-format \
+  checksums.txt</code></pre>
+        </div>
+      </article>
+
+      <article class="step reveal d2">
+        <span class="step-num">08</span>
+        <div>
+          <h2>Give your AI agent secure access (MCP)</h2>
+          <p class="step-desc">Let Claude / Cursor / any MCP-aware agent read scan results without giving it write access or shell. Read-only tools, workspace allowlisting, output size limits.</p>
+          <pre><code>{mcpConfig}</code></pre>
         </div>
       </article>
     </section>

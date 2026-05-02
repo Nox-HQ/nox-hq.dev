@@ -1,24 +1,24 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { pluginTracks, pluginTotalCount } from '../data/plugins';
+import { pluginTracks, pluginTotalCount, verifiedPlugins } from '../data/plugins';
 
 const ciSafeCount = pluginTracks.filter((track) => track.ciSafe === 'yes').length;
 const trackCount = pluginTracks.length;
 ---
 
-<BaseLayout title="NOX — Plugin Catalog" description="All NOX plugin tracks and plugins.">
+<BaseLayout title="Nox — Plugin Marketplace" description="Cosign-signed plugin marketplace. Track-based architecture with explicit safety context for every plugin.">
   <main>
     <section class="section container intro">
-      <p class="kicker">Plugin ecosystem</p>
-      <h1>Track-based plugin architecture with explicit safety context.</h1>
+      <p class="kicker">Plugin marketplace</p>
+      <h1>Cosign-signed plugins, track-based safety guarantees.</h1>
       <p>
-        NOX ships {trackCount} tracks and {pluginTotalCount} plugins. Each track publishes risk class, CI safety, and offline capability to support predictable rollout decisions.
+        Nox ships {trackCount} tracks and {pluginTotalCount} plugins. Every plugin in the official registry carries a Sigstore keyless signature tied to its `release.yml` workflow OIDC subject. The default trust policy refuses install on unsigned drops; operators bypass with `--allow-unverified` or `plugins.trust_policy: permissive`.
       </p>
 
       <div class="summary reveal">
         <article>
-          <p>Total tracks</p>
-          <strong class="metric-value">{trackCount}</strong>
+          <p>Verified in marketplace</p>
+          <strong class="metric-value">{verifiedPlugins.length}</strong>
         </article>
         <article>
           <p>Total plugins</p>
@@ -26,8 +26,27 @@ const trackCount = pluginTracks.length;
         </article>
         <article>
           <p>CI-safe tracks</p>
-          <strong class="metric-value">{ciSafeCount}</strong>
+          <strong class="metric-value">{ciSafeCount}/{trackCount}</strong>
         </article>
+      </div>
+    </section>
+
+    <section class="section container">
+      <div class="verified-header">
+        <p class="kicker">✓ Cosign keyless verified</p>
+        <h2>Featured: signed plugins ready for production</h2>
+      </div>
+      <div class="verified-grid">
+        {verifiedPlugins.map((p) => (
+          <article class="verified-card reveal">
+            <div class="verified-top">
+              <code>nox/{p.name.replace(/^nox-plugin-/, '')}</code>
+              <span class="verified-badge">✓ Verified</span>
+            </div>
+            <p>{p.summary}</p>
+            <pre class="verified-install"><code>nox plugin install nox/{p.name.replace(/^nox-plugin-/, '')}</code></pre>
+          </article>
+        ))}
       </div>
     </section>
 
@@ -51,7 +70,10 @@ const trackCount = pluginTracks.length;
           <ul class="plugins">
             {track.plugins.map((plugin) => (
               <li>
-                <code>{plugin.name}</code>
+                <div class="plugin-name">
+                  <code>{plugin.name}</code>
+                  {plugin.verified && <span class="verified-badge inline">✓ Verified</span>}
+                </div>
                 <span>{plugin.summary}</span>
               </li>
             ))}
@@ -149,6 +171,67 @@ const trackCount = pluginTracks.length;
     background: var(--surface-soft);
   }
 
+  .verified-header {
+    margin-bottom: 1rem;
+  }
+
+  .verified-header .kicker {
+    color: #28c840;
+  }
+
+  .verified-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .verified-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: linear-gradient(165deg, var(--surface), var(--surface-soft));
+    padding: 1rem;
+  }
+
+  .verified-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .verified-top code {
+    font-size: 0.92rem;
+    color: var(--code-accent);
+  }
+
+  .verified-badge {
+    background: rgba(40, 200, 64, 0.1);
+    color: #28c840;
+    border: 1px solid rgba(40, 200, 64, 0.35);
+    border-radius: 999px;
+    padding: 0.18rem 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .verified-badge.inline {
+    font-size: 0.66rem;
+    padding: 0.12rem 0.4rem;
+  }
+
+  .verified-card p {
+    margin: 0 0 0.6rem;
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
+
+  .verified-install {
+    margin: 0;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.78rem;
+  }
+
   .plugins {
     margin: 0.8rem 0 0;
     padding: 0.8rem 0 0 1rem;
@@ -160,6 +243,12 @@ const trackCount = pluginTracks.length;
   .plugins li {
     display: grid;
     gap: 0.16rem;
+  }
+
+  .plugin-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .plugins code {
@@ -179,6 +268,10 @@ const trackCount = pluginTracks.length;
 
     .track summary {
       flex-direction: column;
+    }
+
+    .verified-grid {
+      grid-template-columns: 1fr;
     }
   }
 </style>
