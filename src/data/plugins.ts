@@ -33,11 +33,8 @@ export const pluginTracks: PluginTrack[] = [
     description:
       'Static analysis plugins for source and config files. Fast, deterministic, and safe in local and CI workflows.',
     plugins: [
-      { name: 'nox-plugin-arch-lint', summary: 'Architecture dependency rules and security pattern detection' },
-      { name: 'nox-plugin-container', summary: 'Dockerfile linting, image vulnerability scanning, container SBOM' },
-      { name: 'nox-plugin-sast', summary: 'Language-specific vulnerability detection (SQL injection, XSS, path traversal)' },
-      { name: 'nox-plugin-logic-scan', summary: 'Business logic vulnerability detection with optional AI analysis' },
-      { name: 'nox-plugin-mcp-scan', summary: 'MCP server configuration security analysis (8 rules)' },
+      { name: 'nox-plugin-container', summary: 'Dockerfile linting, image vulnerability scanning, container SBOM (22 rules)' },
+      { name: 'nox-plugin-sast', summary: 'Language-specific vulnerability detection (SQL injection, XSS, path traversal) — 10 rules' },
       { name: 'nox-plugin-reachability', summary: 'Multi-language reachability for VULN findings (Go, PyPI, npm, Cargo, Maven, RubyGems, NuGet)', verified: true },
       { name: 'nox-plugin-taint-analysis', summary: 'Cross-file & interprocedural taint flow including AI source-to-sink (TAINT-001..007 + TAINT-AI-001/002)', verified: true },
     ],
@@ -54,9 +51,9 @@ export const pluginTracks: PluginTrack[] = [
     description:
       'Runtime-facing plugins for active testing of deployed services and environments with explicit opt-in.',
     plugins: [
-      { name: 'nox-plugin-api-abuse', summary: 'API authorization testing (BOLA, BFLA, rate-limit)' },
-      { name: 'nox-plugin-attack-surface', summary: 'Static endpoint extraction and exposure mapping' },
-      { name: 'nox-plugin-dast', summary: 'DAST web/API scanning (passive and active modes)' },
+      { name: 'nox-plugin-api-abuse', summary: 'API authorization testing (BOLA, BFLA, rate-limit) — 5 rules' },
+      { name: 'nox-plugin-attack-surface', summary: 'Static endpoint extraction and exposure mapping (Go, Python, JS/TS frameworks)' },
+      { name: 'nox-plugin-dast', summary: 'DAST web/API scanning with AI-DAST probes for deployed LLM endpoints (12 rules)' },
       { name: 'nox-plugin-k8s-runtime', summary: 'Live Kubernetes cluster security scanning (KRUNT-001..008)', verified: true },
       { name: 'nox-plugin-red-team', summary: 'Attack chain analysis and HTTP validation (REDTEAM-001..010)', verified: true },
       { name: 'nox-plugin-ai-eval', summary: 'Adversarial prompt corpus runner — jailbreak / system-leak / role-confusion / tool-misuse against a chat endpoint (AI-EVAL-001..004)', verified: true },
@@ -73,9 +70,7 @@ export const pluginTracks: PluginTrack[] = [
     characteristics: 'Artifact-centric, high audit value',
     description: 'Integrity and provenance checks for build outputs, dependencies, and release artifacts.',
     plugins: [
-      { name: 'nox-plugin-artifact-integrity', summary: 'Release verification and build comparison' },
-      { name: 'nox-plugin-depconfusion', summary: 'Dependency confusion detection and prevention' },
-      { name: 'nox-plugin-provenance', summary: 'SLSA attestation generation and verification' },
+      { name: 'nox-plugin-depconfusion', summary: 'Dependency confusion detection and prevention across npm, PyPI, RubyGems, Maven' },
     ],
   },
   {
@@ -89,9 +84,8 @@ export const pluginTracks: PluginTrack[] = [
     characteristics: 'Org-specific, non-scanning, consumes findings',
     description: 'Plugins that turn findings into enforceable policy and compliance decisions.',
     plugins: [
-      { name: 'nox-plugin-baseline-mgmt', summary: 'Finding baseline snapshots, diff, and triage' },
-      { name: 'nox-plugin-policy-gate', summary: 'Policy evaluation and CI gate (pass/fail)' },
-      { name: 'nox-plugin-risk-register', summary: 'Risk register generation and trend tracking' },
+      { name: 'nox-plugin-baseline-mgmt', summary: 'Finding baseline snapshots, diff, and triage — brownfield migration enabler' },
+      { name: 'nox-plugin-policy-gate', summary: 'Policy evaluation and CI gate (pass/fail) — 5 rules' },
       { name: 'nox-plugin-grc', summary: 'GRC compliance assessment across 12 frameworks (SOC2, ISO 27001, GDPR, FedRAMP L/M/H, HIPAA, PCI-DSS, NIST 800-53, NIST CSF, CIS v8, CMMC)', verified: true },
     ],
   },
@@ -106,8 +100,8 @@ export const pluginTracks: PluginTrack[] = [
     characteristics: 'Review-focused, early design phase',
     description: 'Design-time security analysis plugins for architecture and threat model quality.',
     plugins: [
-      { name: 'nox-plugin-threat-explain', summary: 'LLM-enhanced finding explanations and impact analysis' },
-      { name: 'nox-plugin-threat-model', summary: 'STRIDE-based auto-modeling with optional AI threat generation' },
+      { name: 'nox-plugin-threat-explain', summary: 'LLM-enhanced finding explanations and impact analysis (8 rules + LLM)' },
+      { name: 'nox-plugin-threat-model', summary: 'STRIDE-based auto-modeling with optional AI threat generation (5 rules + LLM)' },
     ],
   },
   {
@@ -121,45 +115,13 @@ export const pluginTracks: PluginTrack[] = [
     characteristics: 'Signals not exploits, defensive only',
     description: 'Threat intelligence plugins that provide context, correlation, and early signal amplification.',
     plugins: [
-      { name: 'nox-plugin-risk-score', summary: 'Utility risk scoring and severity calculation' },
-      { name: 'nox-plugin-threat-enrich', summary: 'CVE enrichment and ATT&CK mapping' },
-      { name: 'nox-plugin-risk-context', summary: 'Contextual risk scoring based on environment factors' },
-    ],
-  },
-  {
-    id: 'incident-readiness',
-    number: 7,
-    title: 'Incident Readiness & Response',
-    riskClass: 'passive',
-    ciSafe: 'yes',
-    offline: 'yes',
-    readOnly: 'yes',
-    characteristics: 'Process-focused, zero exploit logic',
-    description: 'Readiness and response quality plugins focused on operational resilience.',
-    plugins: [
-      { name: 'nox-plugin-detect-ready', summary: 'Logging audit and alert coverage analysis' },
-      { name: 'nox-plugin-playbook', summary: 'Incident playbook readiness assessment' },
-    ],
-  },
-  {
-    id: 'developer-experience',
-    number: 8,
-    title: 'Developer Experience & Workflow',
-    riskClass: 'passive',
-    ciSafe: 'yes',
-    offline: 'yes',
-    readOnly: 'yes',
-    characteristics: 'Adapters and helpers, not detection',
-    description: 'Workflow plugins that fit NOX outputs into day-to-day engineering practice.',
-    plugins: [
-      { name: 'nox-plugin-lsp', summary: 'Language server protocol integration for editor diagnostics' },
-      { name: 'nox-plugin-orchestrator', summary: 'Scan orchestration, execution planning, and profiles' },
-      { name: 'nox-plugin-report-composer', summary: 'Rich reports (Markdown, HTML, JSON) and dashboards' },
+      { name: 'nox-plugin-risk-score', summary: 'EPSS / KEV vulnerability prioritization and severity scoring' },
+      { name: 'nox-plugin-threat-enrich', summary: 'CVE enrichment, CWE mapping, and MITRE ATT&CK correlation (13 rules)' },
     ],
   },
   {
     id: 'agent-assistance',
-    number: 9,
+    number: 7,
     title: 'Agent & Assistance',
     riskClass: 'passive',
     ciSafe: 'yes',
@@ -168,9 +130,7 @@ export const pluginTracks: PluginTrack[] = [
     characteristics: 'Read-only, never changes results',
     description: 'AI-assisted explanation and remediation planning plugins for human and agent users.',
     plugins: [
-      { name: 'nox-plugin-case-bundle', summary: 'Finding grouping and severity aggregation' },
-      { name: 'nox-plugin-triage-agent', summary: 'LLM-powered finding prioritization and classification' },
-      { name: 'nox-plugin-validator', summary: 'Finding validation with optional AI verification' },
+      { name: 'nox-plugin-triage-agent', summary: 'LLM-powered finding prioritization and false-positive reduction (4 rules + LLM)' },
     ],
   },
 ];

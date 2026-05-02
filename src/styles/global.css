@@ -65,8 +65,8 @@ h3 {
 h1 {
   margin: 0.45rem 0 0.8rem;
   font-size: clamp(2.2rem, 5.6vw, 3.9rem);
-  line-height: 1.02;
-  max-width: 15ch;
+  line-height: 1.05;
+  max-width: 22ch;
 }
 
 h2 {
@@ -148,8 +148,19 @@ pre {
   overflow-x: auto;
 }
 
-code {
-  font-family: 'Space Grotesk', sans-serif;
+code,
+pre,
+pre code {
+  font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  font-feature-settings: 'liga' 0, 'calt' 0;
+}
+
+pre {
+  white-space: pre;
+}
+
+pre code {
+  white-space: inherit;
 }
 
 .metric-value {
