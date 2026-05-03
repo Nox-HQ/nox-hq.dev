@@ -1,0 +1,244 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const capabilityMap = [
+  { snyk: 'snyk test (dependencies)', nox: 'nox scan (VULN-001..003)', note: 'OSV-backed, offline cache, same JSON shape' },
+  { snyk: 'snyk monitor (SaaS state)', nox: 'commit findings.json + diff in CI', note: 'No SaaS, git-native baseline' },
+  { snyk: 'Reachability (paid tier)', nox: 'nox/reachability (verified, bundled)', note: '7 ecosystems: Go, PyPI, npm, Cargo, Maven, RubyGems, NuGet' },
+  { snyk: 'Snyk Code (SAST)', nox: 'core SEC-* + nox/sast', note: '160 secret detectors in core; code-injection in plugin' },
+  { snyk: 'Snyk IaC', nox: 'core IAC-001..369', note: 'Terraform, K8s, Dockerfile, GHA, Ansible, Kustomize, Serverless' },
+  { snyk: 'Snyk Container', nox: 'core CONT-* + nox/container', note: 'Pin/tag rules in core; image scan in plugin (22 rules)' },
+  { snyk: 'Snyk AI (limited)', nox: 'core AI-* + LLM/Agentic families', note: 'OWASP LLM Top 10 + Agentic shipped today' },
+  { snyk: 'snyk ignore (policy file)', nox: 'OpenVEX (vex.json)', note: 'Standard format, fingerprint-pinned, RuleID-matching' },
+  { snyk: 'Severity threshold', nox: '--severity-threshold high', note: 'Same semantics' },
+  { snyk: 'GitHub PR comments', nox: 'nox-hq/nox@v0.7.0 action', note: 'SARIF upload + inline review comments' },
+  { snyk: 'Org policy / dashboard', nox: '.nox.yaml + nox/policy-gate', note: 'Code, not config UI' },
+];
+
+const wins = [
+  { title: 'AI security at the call site', body: 'Prompt injection (LLM01), embedding leakage (LLM06), agent over-privilege (LLM07), MCP server hardening. No commercial scanner ships these as a cohesive family today.' },
+  { title: 'Cosign-signed plugin marketplace', body: 'Every official plugin signed via Sigstore keyless OIDC. Trust chain: cosign(checksums.txt) → tarball SHA → registry digest. Snyk has no equivalent — third-party scanners run unverified.' },
+  { title: 'Cross-file AI taint', body: 'Track tainted input through service hops: request.json → handler → microservice call → chat.completions.create. Snyk and Semgrep treat each file in isolation.' },
+  { title: 'No SaaS, no telemetry, no source upload', body: 'Single binary. Scans run entirely offline (OSV lookups gated behind --no-osv). Source code never leaves the build host.' },
+  { title: 'Polyglot AIBOM', body: 'One ai.inventory.json covers Python ingest + Go service + TypeScript frontend with model invocations, auth env vars, and endpoints per call site.' },
+  { title: 'Manifest-driven plugins', body: '.nox.yaml plugins.required ships pinned, signed plugin sets the way package.json ships dependencies. No dashboard config.' },
+  { title: 'MCP-native', body: 'Built-in MCP server lets Claude / Cursor / any agent query scan results read-only. Snyk has no agent surface.' },
+  { title: 'Apache 2.0', body: 'Free to use, fork, deploy in air-gapped environments without a vendor relationship.' },
+];
+
+const losses = [
+  { title: 'No managed dashboard', body: 'By design. Use nox dashboard for a static HTML view, or roll up per-repo findings.json into a warehouse.' },
+  { title: 'No private CVE database', body: 'Nox consumes OSV. If you rely on Snyk-private CVE data, author a custom rule pack or wait for OSV import.' },
+  { title: 'Smaller integrations catalog', body: 'Fewer enterprise integrations (Jira, ServiceNow). Build via the MCP server or consume findings.json.' },
+  { title: 'No managed PR remediation', body: 'nox fix runs locally. Pair with Renovate / Dependabot for PR creation.' },
+];
+
+const migrateSteps = `# 1. Install nox.
+brew install felixgeelhaar/tap/nox
+
+# 2. Run a baseline scan.
+nox scan . --output nox-out
+
+# 3. Bootstrap a VEX document from current findings (replaces snyk.policy).
+nox vex init --input nox-out/findings.json --output vex.json
+
+# 4. Edit vex.json — set status=not_affected for reviewed findings.
+$EDITOR vex.json
+
+# 5. Wire CI (replaces snyk-monitor / snyk-test).
+cp examples/ci-baseline/.github/workflows/security.yml .github/workflows/
+
+# 6. Verify.
+nox doctor
+nox scan . --vex vex.json`;
+---
+
+<BaseLayout
+  title="Nox vs Snyk — open-source SAST + AI security alternative"
+  description="Capability-by-capability comparison of Nox and Snyk. Cosign-signed plugin marketplace, AI security families (LLM01/06/07), MCP-native, no SaaS, Apache 2.0. 30-minute migration guide."
+>
+  <main>
+    <section class="section container intro">
+      <p class="kicker">Compare · Migrate from Snyk</p>
+      <h1>Nox vs Snyk: open-source, AI-native, no SaaS.</h1>
+      <p class="lede">
+        Snyk's commercial scanner covers dependency, code, IaC, and container. Nox covers all four <em>and</em> ships first-class AI application security (prompt injection, embedding leakage, agent over-privilege, MCP hardening) with a Cosign-signed plugin marketplace and a manifest-driven plugin model. This page maps capabilities one-for-one and shows the 30-minute migration.
+      </p>
+      <div class="actions">
+        <a class="btn solid" href="#migrate">30-minute migration</a>
+        <a class="btn ghost" href="#capability-map">Capability map</a>
+      </div>
+    </section>
+
+    <section class="section container" id="capability-map">
+      <p class="kicker">Capability map</p>
+      <h2>Snyk feature → Nox equivalent</h2>
+      <div class="table-wrap">
+        <table class="compare-table">
+          <thead>
+            <tr><th>Snyk</th><th>Nox</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            {capabilityMap.map((row) => (
+              <tr>
+                <td><strong>{row.snyk}</strong></td>
+                <td><code>{row.nox}</code></td>
+                <td>{row.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section container">
+      <p class="kicker">Why switch</p>
+      <h2>What you gain</h2>
+      <div class="cards">
+        {wins.map((w) => (
+          <article class="card">
+            <h3>{w.title}</h3>
+            <p>{w.body}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="section container">
+      <p class="kicker">Be honest</p>
+      <h2>What you give up</h2>
+      <div class="cards two-col">
+        {losses.map((l) => (
+          <article class="card subtle">
+            <h3>{l.title}</h3>
+            <p>{l.body}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="section container" id="migrate">
+      <p class="kicker">30-minute migration</p>
+      <h2>From <code>snyk test</code> to <code>nox scan</code></h2>
+      <p class="lede">
+        The migration is mechanical. <code>nox vex init</code> reads your existing findings and produces an OpenVEX document that replaces <code>snyk.policy</code>. Wire the GitHub Action and you have severity-threshold gating, SARIF upload, and inline PR comments.
+      </p>
+      <pre><code>{migrateSteps}</code></pre>
+    </section>
+
+    <section class="section container cta-section">
+      <div class="cta-box">
+        <h2>Ready to migrate?</h2>
+        <p>Start with a parallel scan — keep Snyk running, run Nox alongside it for a sprint, then cut over.</p>
+        <div class="cta-actions">
+          <a class="btn solid" href="/get-started">Get Started</a>
+          <a class="btn ghost" href="https://github.com/Nox-HQ/nox" target="_blank" rel="noreferrer">Star on GitHub</a>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .intro p {
+    max-width: 76ch;
+  }
+
+  .actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+  }
+
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .compare-table th,
+  .compare-table td {
+    padding: 0.85rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+
+  .compare-table th {
+    background: var(--surface-soft);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .compare-table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .compare-table td code {
+    font-size: 0.84rem;
+    color: var(--code-accent);
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .cards.two-col {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: linear-gradient(165deg, var(--surface), var(--surface-soft));
+    padding: 1rem;
+  }
+
+  .card.subtle {
+    background: var(--surface);
+  }
+
+  .card h3 {
+    font-size: 1.05rem;
+    margin: 0 0 0.4rem;
+  }
+
+  .card p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .cta-section {
+    border-top: 0;
+  }
+
+  .cta-box {
+    text-align: center;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: linear-gradient(165deg, var(--surface), var(--surface-soft));
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  .cta-actions {
+    display: flex;
+    gap: 0.65rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+</style>

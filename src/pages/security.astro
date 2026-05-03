@@ -1,0 +1,126 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const verifyCmd = `cosign verify-blob \\
+  --certificate-identity-regexp \\
+    "https://github.com/Nox-HQ/nox/.github/workflows/release.yml@.*" \\
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \\
+  --bundle nox_<version>_checksums.txt.sig.bundle \\
+  --new-bundle-format \\
+  nox_<version>_checksums.txt`;
+---
+
+<BaseLayout
+  title="Nox — Security policy and supply-chain attestation"
+  description="Vulnerability disclosure, supply-chain attestation, and verification recipes for the Nox security scanner. Every release Cosign-signed via Sigstore keyless OIDC."
+>
+  <main>
+    <section class="section container intro">
+      <p class="kicker">Security policy</p>
+      <h1>Disclosure, attestation, verification.</h1>
+      <p class="lede">
+        Nox is a security tool. We hold ourselves to the standard we ask of users — every release is reproducibly built, Cosign-signed via Sigstore keyless OIDC, and ships a SLSA Level 3 provenance attestation. This page is the canonical reference for verifying a release and reporting a vulnerability.
+      </p>
+    </section>
+
+    <section class="section container">
+      <p class="kicker">Reporting a vulnerability</p>
+      <h2>Responsible disclosure</h2>
+      <p>
+        If you have found a vulnerability in <code>nox</code>, the official plugins, or the registry index pipeline, please use GitHub's private vulnerability disclosure flow: <a href="https://github.com/Nox-HQ/nox/security/advisories/new" target="_blank" rel="noreferrer">Open a private advisory</a>.
+      </p>
+      <p>
+        We aim to acknowledge reports within 48 hours and ship a fix within 14 days for high-severity findings. Please do not file a public issue for vulnerabilities.
+      </p>
+      <p>
+        Out-of-band channel: <a href="mailto:security@nox-hq.dev">security@nox-hq.dev</a>. PGP key on request.
+      </p>
+    </section>
+
+    <section class="section container">
+      <p class="kicker">Supported versions</p>
+      <h2>Supported releases</h2>
+      <p>
+        Security fixes ship to the latest minor release line on <code>main</code>. Earlier minors are supported for 90 days after the next minor's release. Patch releases (<code>v0.x.y</code>) are issued for critical fixes during that window.
+      </p>
+    </section>
+
+    <section class="section container">
+      <p class="kicker">Verification</p>
+      <h2>Verify a release out-of-band</h2>
+      <p>
+        Every <code>nox</code> release publishes a <code>checksums.txt</code> signed by the GoReleaser workflow's OIDC subject via Sigstore. To verify a downloaded binary:
+      </p>
+      <pre><code>{verifyCmd}</code></pre>
+      <p>
+        A passing verification asserts:
+      </p>
+      <ul>
+        <li>The checksums file was produced by the <code>release.yml</code> workflow in <code>Nox-HQ/nox</code> at the tagged ref</li>
+        <li>The OIDC subject was issued by GitHub Actions (<code>token.actions.githubusercontent.com</code>)</li>
+        <li>The downloaded binary's SHA-256 matches the entry in the signed checksums file</li>
+      </ul>
+      <p>
+        The same chain applies to every plugin in the official marketplace. Replace the repository slug with the plugin name (e.g. <code>Nox-HQ/nox-plugin-reachability</code>).
+      </p>
+    </section>
+
+    <section class="section container">
+      <p class="kicker">Provenance</p>
+      <h2>SLSA Level 3 attestation</h2>
+      <p>
+        Each release uploads a SLSA v1.0 provenance attestation alongside the artifacts. The attestation captures the source repository, the commit SHA, the builder identity, and the build configuration. Verify with:
+      </p>
+      <pre><code>cosign verify-attestation \
+  --certificate-identity-regexp "(?i)https://github.com/Nox-HQ/nox/.github/workflows/.*" \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  --type slsaprovenance \
+  &lt;binary&gt;</code></pre>
+    </section>
+
+    <section class="section container">
+      <p class="kicker">Trust model</p>
+      <h2>What Nox does (and never does)</h2>
+      <ul>
+        <li><strong>Never uploads source code</strong>. Scans run entirely on the build host. OSV vulnerability lookups are gated behind <code>--no-osv</code>.</li>
+        <li><strong>Never executes untrusted code</strong>. Plugins run as subprocesses with explicit risk classification (passive / active / runtime); active plugins require operator confirmation.</li>
+        <li><strong>Never auto-applies fixes</strong>. <code>nox fix</code> writes a patch to disk; the human commits.</li>
+        <li><strong>No telemetry</strong>. Zero outbound network calls beyond the operator's <code>nox plugin install</code> requests.</li>
+        <li><strong>Default trust policy</strong>. Plugin install fails closed unless either Cosign keyless or an in-tool Ed25519 signature passes verification.</li>
+      </ul>
+    </section>
+
+    <section class="section container">
+      <p class="kicker">Coordinated disclosure</p>
+      <h2>Plugin vulnerabilities</h2>
+      <p>
+        Vulnerabilities in third-party plugins should be reported to that plugin's maintainer via the same private-advisory flow on its own repository. Nox-HQ retains the right to delist a plugin from the official registry if a critical vulnerability is unpatched within 30 days; the plugin remains installable via <code>--allow-unverified</code> for operators who accept the risk.
+      </p>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .intro p {
+    max-width: 76ch;
+  }
+
+  ul {
+    color: var(--muted);
+    line-height: 1.7;
+    padding-left: 1.2rem;
+    max-width: 78ch;
+  }
+
+  ul li {
+    margin-bottom: 0.4rem;
+  }
+
+  ul strong {
+    color: var(--text);
+  }
+
+  pre {
+    margin-top: 0.8rem;
+  }
+</style>
