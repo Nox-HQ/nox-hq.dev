@@ -51,8 +51,8 @@ export const pluginTracks: PluginTrack[] = [
     description:
       'Runtime-facing plugins for active testing of deployed services and environments with explicit opt-in.',
     plugins: [
-      { name: 'nox-plugin-api-abuse', summary: 'API authorization testing (BOLA, BFLA, rate-limit) — 5 rules' },
-      { name: 'nox-plugin-attack-surface', summary: 'Static endpoint extraction and exposure mapping (Go, Python, JS/TS frameworks)' },
+      { name: 'nox-plugin-api-abuse', summary: 'API authorization testing (BOLA, BFLA, rate-limit) — 5 rules', verified: true },
+      { name: 'nox-plugin-attack-surface', summary: 'Static endpoint extraction and exposure mapping (Go, Python, JS/TS frameworks)', verified: true },
       { name: 'nox-plugin-dast', summary: 'DAST web/API probes — HTTP misconfig (DAST-001..006) plus opt-in AI-DAST: prompt injection, system prompt leak, tool smuggling, cost amplification (DAST-007..010)', verified: true },
       { name: 'nox-plugin-k8s-runtime', summary: 'Live Kubernetes cluster security scanning (KRUNT-001..008)', verified: true },
       { name: 'nox-plugin-red-team', summary: 'Attack chain analysis and HTTP validation (REDTEAM-001..010)', verified: true },
@@ -100,8 +100,8 @@ export const pluginTracks: PluginTrack[] = [
     characteristics: 'Review-focused, early design phase',
     description: 'Design-time security analysis plugins for architecture and threat model quality.',
     plugins: [
-      { name: 'nox-plugin-threat-explain', summary: 'LLM-enhanced finding explanations and impact analysis (8 rules + LLM)' },
-      { name: 'nox-plugin-threat-model', summary: 'STRIDE-based auto-modeling with optional AI threat generation (5 rules + LLM)' },
+      { name: 'nox-plugin-threat-explain', summary: 'LLM-enhanced finding explanations and impact analysis (8 rules + LLM)', verified: true },
+      { name: 'nox-plugin-threat-model', summary: 'STRIDE-based auto-modeling with optional AI threat generation (5 rules + LLM)', verified: true },
     ],
   },
   {
@@ -115,7 +115,7 @@ export const pluginTracks: PluginTrack[] = [
     characteristics: 'Signals not exploits, defensive only',
     description: 'Threat intelligence plugins that provide context, correlation, and early signal amplification.',
     plugins: [
-      { name: 'nox-plugin-risk-score', summary: 'EPSS / KEV vulnerability prioritization and severity scoring' },
+      { name: 'nox-plugin-risk-score', summary: 'EPSS / KEV vulnerability prioritization and severity scoring', verified: true },
       { name: 'nox-plugin-threat-enrich', summary: 'CVE enrichment, CWE mapping, and MITRE ATT&CK correlation (13 rules)', verified: true },
     ],
   },
