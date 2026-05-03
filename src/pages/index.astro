@@ -199,6 +199,31 @@ $ nox scan .</code></pre>
       </div>
     </section>
 
+    <!-- Site tour video -->
+    <section class="section container">
+      <div class="video-section">
+        <div class="video-copy">
+          <p class="kicker">90-second tour</p>
+          <h2>See what Nox catches.</h2>
+          <p>A short walkthrough of the marketplace, the comparison pages, and the trust model. No audio — keep your headphones on whatever you were already listening to.</p>
+        </div>
+        <div class="video-frame reveal">
+          <video
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            poster="/demo/site-tour-poster.jpg"
+            aria-label="Nox site tour: home, plugin marketplace, vs Snyk comparison, enterprise, blog"
+          >
+            <source src="/demo/site-tour.webm" type="video/webm" />
+            <source src="/demo/site-tour.mp4" type="video/mp4" />
+          </video>
+        </div>
+      </div>
+    </section>
+
     <!-- Terminal Demo -->
     <section class="section container">
       <div class="terminal-section">
@@ -386,6 +411,36 @@ $ nox scan .</code></pre>
     padding: 0.32rem 0.6rem;
     font-size: 0.78rem;
     background: var(--surface);
+  }
+
+  /* Site tour video */
+  .video-section {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+    gap: 1.6rem;
+    align-items: center;
+  }
+
+  .video-copy p:last-child {
+    max-width: 50ch;
+  }
+
+  .video-frame {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    background: #0b1739;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32);
+  }
+
+  .video-frame video {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  @media (max-width: 960px) {
+    .video-section { grid-template-columns: 1fr; }
   }
 
   /* Verified marketplace */
