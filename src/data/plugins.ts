@@ -130,7 +130,7 @@ export const pluginTracks: PluginTrack[] = [
     characteristics: 'Read-only, never changes results',
     description: 'AI-assisted explanation and remediation planning plugins for human and agent users.',
     plugins: [
-      { name: 'nox-plugin-triage-agent', summary: 'LLM-powered finding prioritization and false-positive reduction (4 rules + LLM)' },
+      { name: 'nox-plugin-triage-agent', summary: 'LLM-powered finding prioritization and false-positive reduction (4 rules + 7-provider LLM: openai, anthropic, gemini, ollama, cohere, bedrock, copilot)', verified: true },
     ],
   },
 ];
