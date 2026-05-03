@@ -33,8 +33,8 @@ export const pluginTracks: PluginTrack[] = [
     description:
       'Static analysis plugins for source and config files. Fast, deterministic, and safe in local and CI workflows.',
     plugins: [
-      { name: 'nox-plugin-container', summary: 'Dockerfile linting, image vulnerability scanning, container SBOM (22 rules)' },
-      { name: 'nox-plugin-sast', summary: 'Language-specific vulnerability detection (SQL injection, XSS, path traversal) — 10 rules' },
+      { name: 'nox-plugin-container', summary: 'Dockerfile linting, image vulnerability scanning, container SBOM (22 rules)', verified: true },
+      { name: 'nox-plugin-sast', summary: 'Language-specific vulnerability detection (SQL injection, XSS, path traversal) — 10 rules', verified: true },
       { name: 'nox-plugin-reachability', summary: 'Multi-language reachability for VULN findings (Go, PyPI, npm, Cargo, Maven, RubyGems, NuGet)', verified: true },
       { name: 'nox-plugin-taint-analysis', summary: 'Cross-file & interprocedural taint flow including AI source-to-sink (TAINT-001..007 + TAINT-AI-001/002)', verified: true },
     ],
@@ -70,7 +70,7 @@ export const pluginTracks: PluginTrack[] = [
     characteristics: 'Artifact-centric, high audit value',
     description: 'Integrity and provenance checks for build outputs, dependencies, and release artifacts.',
     plugins: [
-      { name: 'nox-plugin-depconfusion', summary: 'Dependency confusion detection and prevention across npm, PyPI, RubyGems, Maven' },
+      { name: 'nox-plugin-depconfusion', summary: 'Dependency confusion detection and prevention across npm, PyPI, RubyGems, Maven', verified: true },
     ],
   },
   {
@@ -84,8 +84,8 @@ export const pluginTracks: PluginTrack[] = [
     characteristics: 'Org-specific, non-scanning, consumes findings',
     description: 'Plugins that turn findings into enforceable policy and compliance decisions.',
     plugins: [
-      { name: 'nox-plugin-baseline-mgmt', summary: 'Finding baseline snapshots, diff, and triage — brownfield migration enabler' },
-      { name: 'nox-plugin-policy-gate', summary: 'Policy evaluation and CI gate (pass/fail) — 5 rules' },
+      { name: 'nox-plugin-baseline-mgmt', summary: 'Finding baseline snapshots, diff, and triage — brownfield migration enabler', verified: true },
+      { name: 'nox-plugin-policy-gate', summary: 'Policy evaluation and CI gate (pass/fail) — 5 rules', verified: true },
       { name: 'nox-plugin-grc', summary: 'GRC compliance assessment across 12 frameworks (SOC2, ISO 27001, GDPR, FedRAMP L/M/H, HIPAA, PCI-DSS, NIST 800-53, NIST CSF, CIS v8, CMMC)', verified: true },
     ],
   },
@@ -116,7 +116,7 @@ export const pluginTracks: PluginTrack[] = [
     description: 'Threat intelligence plugins that provide context, correlation, and early signal amplification.',
     plugins: [
       { name: 'nox-plugin-risk-score', summary: 'EPSS / KEV vulnerability prioritization and severity scoring' },
-      { name: 'nox-plugin-threat-enrich', summary: 'CVE enrichment, CWE mapping, and MITRE ATT&CK correlation (13 rules)' },
+      { name: 'nox-plugin-threat-enrich', summary: 'CVE enrichment, CWE mapping, and MITRE ATT&CK correlation (13 rules)', verified: true },
     ],
   },
   {
