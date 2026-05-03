@@ -1,0 +1,76 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
+
+const fmt = new Intl.DateTimeFormat('en-US', { dateStyle: 'long' });
+---
+
+<BaseLayout
+  title="Nox blog — AI security, supply-chain, scanner internals"
+  description="Posts from the Nox team on AI application security, supply-chain provenance, the Sigstore-signed plugin marketplace, and scanner internals."
+>
+  <main>
+    <section class="section container intro">
+      <p class="kicker">Blog</p>
+      <h1>Posts from the Nox team.</h1>
+      <p class="lede">
+        AI application security, supply-chain provenance, scanner internals,
+        and weekly findings from scanning popular open-source LLM SDKs.
+      </p>
+    </section>
+
+    <section class="section container posts">
+      {posts.map((post) => (
+        <article class="post-card">
+          <p class="post-date">{fmt.format(post.data.publishedAt)}</p>
+          <h2><a href={`/blog/${post.slug}`}>{post.data.title}</a></h2>
+          <p>{post.data.description}</p>
+          <ul class="tags">
+            {post.data.tags.map((t) => <li>{t}</li>)}
+          </ul>
+        </article>
+      ))}
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .intro p { max-width: 70ch; }
+  .posts { display: grid; gap: 1.2rem; }
+  .post-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: linear-gradient(165deg, var(--surface), var(--surface-soft));
+    padding: 1.2rem 1.4rem;
+  }
+  .post-card h2 { margin: 0.4rem 0 0.5rem; font-size: 1.4rem; }
+  .post-card h2 a { color: var(--text); text-decoration: none; }
+  .post-card h2 a:hover { color: var(--cyan); }
+  .post-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; }
+  .post-date {
+    margin: 0;
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .tags {
+    margin: 0.7rem 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+  .tags li {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.2rem 0.55rem;
+    font-size: 0.72rem;
+    color: var(--muted);
+    background: var(--surface);
+  }
+</style>

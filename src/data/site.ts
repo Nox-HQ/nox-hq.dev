@@ -2,6 +2,6 @@ export const siteNav = [
   { href: '/', label: 'Home' },
   { href: '/features', label: 'Features' },
   { href: '/plugins', label: 'Plugins' },
-  { href: '/compare/snyk', label: 'vs Snyk' },
+  { href: '/blog', label: 'Blog' },
   { href: '/get-started', label: 'Get Started' },
 ];

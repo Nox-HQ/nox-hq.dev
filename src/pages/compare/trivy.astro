@@ -1,0 +1,142 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const capabilityMap = [
+  { trivy: 'Container image scanning', nox: 'core CONT-* + nox/container (22 rules)', note: 'Trivy still leads here; pair them' },
+  { trivy: 'Filesystem scanning', nox: 'core (160 secrets, 369 IaC, 21 AI, 12 PII)', note: 'Nox covers more rule families per pass' },
+  { trivy: 'IaC scanning', nox: '369 rules: TF, K8s, Dockerfile, GHA, Ansible, Kustomize, Serverless', note: 'Broader than Trivy IaC' },
+  { trivy: 'SBOM (CycloneDX/SPDX)', nox: 'CycloneDX + SPDX + AIBOM v2.0', note: 'Nox adds AIBOM (AI components)' },
+  { trivy: 'Vulnerability database', nox: 'OSV.dev', note: 'Trivy uses Aqua + GHSA + Red Hat. Trivy DB more comprehensive for CVEs' },
+  { trivy: 'AI security', nox: 'first-class — LLM01/06/07 + MCP + cross-file AI taint', note: 'Trivy has no AI security coverage' },
+  { trivy: 'SAST', nox: 'core SEC-* + nox/sast', note: 'Trivy SAST is basic; Nox covers more vuln classes' },
+  { trivy: 'Plugin model', nox: 'cosign-signed marketplace, manifest-driven', note: 'Trivy plugins exist but no signing model' },
+  { trivy: 'MCP / agent integration', nox: 'native (10 read-only tools)', note: 'Trivy has no agent surface' },
+  { trivy: 'Pricing', nox: '$0, Apache 2.0', note: 'Trivy free, Aqua paid tier exists' },
+];
+
+const wins = [
+  { title: 'AI security', body: 'Prompt injection, embedding leakage, agent over-privilege, MCP server hardening, AI taint flow, AIBOM. Trivy doesn\'t scan any of these.' },
+  { title: 'Broader IaC + SAST in one pass', body: 'Trivy excels at images. Nox covers IaC, SAST, secrets, AI security, and dependencies in a single deterministic scan with 717 rules.' },
+  { title: 'Cosign-signed plugin marketplace', body: 'Every official plugin verified via Sigstore keyless OIDC. Trivy has plugins but no supply-chain integrity model.' },
+  { title: 'Manifest-driven plugins (.nox.yaml)', body: 'Pin a verified plugin set per repo. Anyone cloning gets the same scanners on first run.' },
+];
+
+const coexist = [
+  { title: 'Container scanning depth', body: 'Trivy is mature for layer-by-layer image scanning. If you scan production container images, keep Trivy as the image scanner.' },
+  { title: 'Vulnerability research', body: 'Aqua\'s CVE database integrates GHSA, NVD, Red Hat, Alpine, Debian, Ubuntu, Amazon Linux, Wolfi, etc. Nox uses OSV (good but narrower). For container CVE coverage, Trivy still wins.' },
+  { title: 'Established CI presence', body: 'Trivy is a default in many GitHub Actions / GitLab CI templates. Don\'t rip it out — let Nox cover the layers Trivy doesn\'t.' },
+];
+
+const stack = `# .github/workflows/security.yml — Nox + Trivy together
+- name: Trivy (container)
+  uses: aquasecurity/trivy-action@v0.x.x
+  with:
+    image-ref: ghcr.io/myorg/myapp:latest
+    format: sarif
+    output: trivy.sarif
+
+- name: Nox (everything else)
+  uses: nox-hq/nox@v0.7.0
+  with:
+    path: '.'
+    format: sarif
+    annotate: 'true'
+
+- uses: github/codeql-action/upload-sarif@v3
+  with:
+    sarif_file: results.sarif`;
+---
+
+<BaseLayout
+  title="Nox vs Trivy — coexistence guide"
+  description="Trivy is best for container layer scanning. Nox covers AI security, broader IaC, SAST, secrets, AIBOM with a cosign-signed plugin marketplace. Use them together."
+>
+  <main>
+    <section class="section container intro">
+      <p class="kicker">Compare · Nox + Trivy</p>
+      <h1>Nox + Trivy: coexist, don't replace.</h1>
+      <p class="lede">
+        Trivy is the container scanner most teams already run. Nox covers what Trivy doesn't: AI security families, broader IaC, AIBOM, cross-file taint, and a cosign-signed plugin marketplace. The right answer is to run both — Trivy for image layers, Nox for everything else.
+      </p>
+      <div class="actions">
+        <a class="btn solid" href="#stack">Run them together</a>
+        <a class="btn ghost" href="#capability-map">Capability map</a>
+      </div>
+    </section>
+
+    <section class="section container" id="capability-map">
+      <p class="kicker">Capability map</p>
+      <h2>Trivy feature → Nox equivalent</h2>
+      <div class="table-wrap">
+        <table class="compare-table">
+          <thead><tr><th>Trivy</th><th>Nox</th><th>Notes</th></tr></thead>
+          <tbody>
+            {capabilityMap.map((row) => (
+              <tr>
+                <td><strong>{row.trivy}</strong></td>
+                <td><code>{row.nox}</code></td>
+                <td>{row.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section container">
+      <p class="kicker">Why add Nox</p>
+      <h2>What Nox covers that Trivy doesn't</h2>
+      <div class="cards">
+        {wins.map((w) => (
+          <article class="card"><h3>{w.title}</h3><p>{w.body}</p></article>
+        ))}
+      </div>
+    </section>
+
+    <section class="section container">
+      <p class="kicker">Keep Trivy where it shines</p>
+      <h2>Trivy strengths to preserve</h2>
+      <div class="cards two-col">
+        {coexist.map((l) => (
+          <article class="card subtle"><h3>{l.title}</h3><p>{l.body}</p></article>
+        ))}
+      </div>
+    </section>
+
+    <section class="section container" id="stack">
+      <p class="kicker">Recommended stack</p>
+      <h2>Run Nox + Trivy in CI</h2>
+      <pre><code>{stack}</code></pre>
+    </section>
+
+    <section class="section container cta-section">
+      <div class="cta-box">
+        <h2>Add Nox to your existing stack</h2>
+        <div class="cta-actions">
+          <a class="btn solid" href="/get-started">Get Started</a>
+          <a class="btn ghost" href="https://github.com/Nox-HQ/nox" target="_blank" rel="noreferrer">Star on GitHub</a>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .intro p { max-width: 76ch; }
+  .actions { margin-top: 1rem; display: flex; gap: 0.65rem; flex-wrap: wrap; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .compare-table th, .compare-table td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .compare-table th { background: var(--surface-soft); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
+  .compare-table tbody tr:last-child td { border-bottom: 0; }
+  .compare-table td code { font-size: 0.84rem; color: var(--code-accent); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+  .cards.two-col { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+  .card { border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(165deg, var(--surface), var(--surface-soft)); padding: 1rem; }
+  .card.subtle { background: var(--surface); }
+  .card h3 { font-size: 1.05rem; margin: 0 0 0.4rem; }
+  .card p { margin: 0; font-size: 0.9rem; line-height: 1.55; }
+  .cta-section { border-top: 0; }
+  .cta-box { text-align: center; border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(165deg, var(--surface), var(--surface-soft)); padding: clamp(1.5rem, 4vw, 2.5rem); }
+  .cta-actions { display: flex; gap: 0.65rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+</style>

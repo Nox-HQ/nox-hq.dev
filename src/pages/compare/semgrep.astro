@@ -1,0 +1,142 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const capabilityMap = [
+  { semgrep: 'Pattern-based SAST', nox: 'core SEC-* + nox/sast', note: 'Both pattern + AST. Semgrep DSL more expressive; Nox covers more languages out of the box' },
+  { semgrep: 'Cross-file taint (interfile)', nox: 'core TAINT-001..007 (interprocedural) + AI taint', note: 'Free in Nox. Paid tier in Semgrep.' },
+  { semgrep: 'AI security rules', nox: '21 dedicated AI rules + MCP-001..008 + AI taint families', note: 'Semgrep relies on community AI rules; no MCP coverage' },
+  { semgrep: 'SCA / dependencies', nox: 'core VULN-* + nox/reachability (verified)', note: 'Semgrep Supply Chain is paid' },
+  { semgrep: 'IaC scanning', nox: '369 IAC rules across Terraform, K8s, Dockerfile, GHA, Ansible, Kustomize, Serverless', note: 'Semgrep has IaC rules but breadth is narrower' },
+  { semgrep: 'Secrets', nox: '160 SEC rules core', note: 'Semgrep secrets is paid' },
+  { semgrep: 'Custom rules', nox: 'YAML rule packs', note: 'Semgrep DSL is genuinely better for AST patterns. Nox uses RE2 + structural matchers.' },
+  { semgrep: 'CI gating', nox: 'nox/policy-gate (verified)', note: 'Both ship CI gates' },
+  { semgrep: 'Editor integration', nox: 'VSCode/JetBrains plugin in roadmap', note: 'Semgrep wins today' },
+  { semgrep: 'Cosign-signed extensions', nox: '19 verified plugins, all Sigstore keyless', note: 'No equivalent in Semgrep' },
+  { semgrep: 'Pricing', nox: '$0 forever, Apache 2.0', note: 'Semgrep paid for serious use ($40-100/dev/mo)' },
+];
+
+const wins = [
+  { title: 'AI security depth', body: 'Prompt injection at the call site (LLM01), embedding leakage (LLM06), agent over-privilege (LLM07), MCP server hardening (MCP-001..008). Semgrep relies on community AI rules with no cohesive family.' },
+  { title: 'Cross-file taint is free', body: 'Semgrep gates interfile analysis behind the Pro tier. Nox\'s TAINT-006/007 + TAINT-AI-001/002 ship in core, including AI-specific source-to-sink (request.json → service hop → chat.completions.create).' },
+  { title: 'Cosign-signed plugin marketplace', body: 'Every plugin in the official registry verified via Sigstore keyless OIDC. Semgrep rules are uploaded files with no supply-chain integrity story.' },
+  { title: 'Single binary covers SAST + SCA + IaC + AI + secrets', body: 'One pass, deterministic, offline. Semgrep\'s coverage requires multiple paid tiers stitched together.' },
+  { title: 'AIBOM v2.0', body: 'Polyglot AI component inventory naming every model invocation, auth env var, and endpoint. Audit-ready. Semgrep has nothing equivalent.' },
+];
+
+const losses = [
+  { title: 'Rule authoring DX', body: 'Semgrep DSL beats RE2-based pattern matching for complex AST queries. If you author dozens of custom rules, Semgrep wins.' },
+  { title: 'Community rule volume', body: 'Semgrep ships thousands of community rules across niche languages. Nox\'s ruleset is curated and smaller (717).' },
+  { title: 'Type-aware analysis', body: 'Semgrep Pro has type-aware analysis for Java/JavaScript/Python that catches edge cases pattern matching misses.' },
+];
+
+const migrate = `# 1. Install nox.
+brew install felixgeelhaar/tap/nox
+
+# 2. Run a baseline scan.
+nox scan . --output nox-out
+
+# 3. Convert your Semgrep .semgrep.yml to a nox baseline.
+nox vex init --input nox-out/findings.json --output vex.json
+
+# 4. Wire CI (replaces semgrep ci).
+cp examples/ci-baseline/.github/workflows/security.yml .github/workflows/
+
+# 5. Verify.
+nox doctor
+nox scan . --vex vex.json`;
+---
+
+<BaseLayout
+  title="Nox vs Semgrep — open-source SAST + AI security alternative"
+  description="Capability-by-capability comparison of Nox and Semgrep. Cross-file taint free in Nox (paid in Semgrep), cosign-signed plugin marketplace, AI security families. Apache 2.0."
+>
+  <main>
+    <section class="section container intro">
+      <p class="kicker">Compare · vs Semgrep</p>
+      <h1>Nox vs Semgrep: AI-native, signed extensions, cross-file taint free.</h1>
+      <p class="lede">
+        Semgrep is a strong general-purpose SAST. Nox is purpose-built for teams shipping AI features and pairs SAST with cosign-signed plugins, AIBOM, and MCP-native agent access. Where Semgrep gates cross-file taint behind the Pro tier, Nox ships interprocedural taint plus AI-specific source-to-sink in the open-source core.
+      </p>
+      <div class="actions">
+        <a class="btn solid" href="#migrate">30-minute migration</a>
+        <a class="btn ghost" href="#capability-map">Capability map</a>
+      </div>
+    </section>
+
+    <section class="section container" id="capability-map">
+      <p class="kicker">Capability map</p>
+      <h2>Semgrep feature → Nox equivalent</h2>
+      <div class="table-wrap">
+        <table class="compare-table">
+          <thead><tr><th>Semgrep</th><th>Nox</th><th>Notes</th></tr></thead>
+          <tbody>
+            {capabilityMap.map((row) => (
+              <tr>
+                <td><strong>{row.semgrep}</strong></td>
+                <td><code>{row.nox}</code></td>
+                <td>{row.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section container">
+      <p class="kicker">Why switch</p>
+      <h2>What you gain</h2>
+      <div class="cards">
+        {wins.map((w) => (
+          <article class="card"><h3>{w.title}</h3><p>{w.body}</p></article>
+        ))}
+      </div>
+    </section>
+
+    <section class="section container">
+      <p class="kicker">Be honest</p>
+      <h2>What you give up</h2>
+      <div class="cards two-col">
+        {losses.map((l) => (
+          <article class="card subtle"><h3>{l.title}</h3><p>{l.body}</p></article>
+        ))}
+      </div>
+    </section>
+
+    <section class="section container" id="migrate">
+      <p class="kicker">30-minute migration</p>
+      <h2>From <code>semgrep ci</code> to <code>nox scan</code></h2>
+      <pre><code>{migrate}</code></pre>
+    </section>
+
+    <section class="section container cta-section">
+      <div class="cta-box">
+        <h2>Ready to migrate?</h2>
+        <p>Run Nox alongside Semgrep for a sprint, compare findings, then cut over.</p>
+        <div class="cta-actions">
+          <a class="btn solid" href="/get-started">Get Started</a>
+          <a class="btn ghost" href="https://github.com/Nox-HQ/nox" target="_blank" rel="noreferrer">Star on GitHub</a>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .intro p { max-width: 76ch; }
+  .actions { margin-top: 1rem; display: flex; gap: 0.65rem; flex-wrap: wrap; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .compare-table th, .compare-table td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .compare-table th { background: var(--surface-soft); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
+  .compare-table tbody tr:last-child td { border-bottom: 0; }
+  .compare-table td code { font-size: 0.84rem; color: var(--code-accent); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+  .cards.two-col { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+  .card { border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(165deg, var(--surface), var(--surface-soft)); padding: 1rem; }
+  .card.subtle { background: var(--surface); }
+  .card h3 { font-size: 1.05rem; margin: 0 0 0.4rem; }
+  .card p { margin: 0; font-size: 0.9rem; line-height: 1.55; }
+  .cta-section { border-top: 0; }
+  .cta-box { text-align: center; border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(165deg, var(--surface), var(--surface-soft)); padding: clamp(1.5rem, 4vw, 2.5rem); }
+  .cta-actions { display: flex; gap: 0.65rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+</style>

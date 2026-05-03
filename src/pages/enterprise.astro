@@ -1,0 +1,177 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const corePrinciples = [
+  { title: 'No source upload, ever', body: 'Scans run entirely on your build hosts. OSV vulnerability lookups gated behind a single flag (--no-osv) for fully air-gapped environments.' },
+  { title: 'No telemetry', body: 'Zero outbound network calls beyond operator-initiated plugin installs. Auditable: open-source, deterministic, single binary.' },
+  { title: 'Open core, Apache 2.0', body: 'Every detection rule, the trust verifier, the plugin SDK — all open-source under Apache 2.0. No proprietary lock-in.' },
+];
+
+const enterpriseNeeds = [
+  {
+    title: 'Private signer keyring (Ed25519)',
+    body: 'Beyond the default Sigstore-keyless trust policy, organisations can bind plugin installs to a curated set of Ed25519 keys. The enterprise trust policy refuses any artifact whose signer key is not in the local keyring.',
+    code: `# .nox.yaml
+plugins:
+  trust_policy: enterprise
+  signer_keyring:
+    - name: acme-security
+      pubkey_pem: |
+        -----BEGIN PUBLIC KEY-----
+        ...your Ed25519 pubkey...
+        -----END PUBLIC KEY-----`,
+  },
+  {
+    title: 'Private plugin registry',
+    body: 'Run an internal plugin registry that mirrors the public official registry plus your own custom plugins. Operators discover and install via the same nox plugin install UX.',
+    code: `# .nox.yaml
+plugins:
+  registries:
+    - acme=https://nox-registry.acme.internal/index.json
+  required:
+    - acme/internal-secrets-pack@>=1.2
+    - nox/reachability
+    - nox/grc`,
+  },
+  {
+    title: 'Air-gapped deployment',
+    body: 'Mirror the registry into your artifact server, sign with your keyring, distribute the nox binary via internal channels. No network calls required at scan time.',
+    code: `nox plugin install nox/grc \\
+  --registry https://artifacts.acme.internal/nox-mirror.json \\
+  --trust-policy enterprise
+
+# Or set the registry persistently:
+nox registry add https://artifacts.acme.internal/nox-mirror.json \\
+  --name acme-mirror`,
+  },
+  {
+    title: 'Compliance posture',
+    body: 'nox/grc covers 12 frameworks: SOC 2, ISO 27001, GDPR, FedRAMP Low / Moderate / High, HIPAA, PCI-DSS, NIST 800-53, NIST CSF, CIS v8, CMMC. Generate audit-ready evidence bundles directly from scan output.',
+    code: `nox plugin call grc gap_report \\
+  framework=fedramp-moderate \\
+  output=fedramp-moderate-gap.json`,
+  },
+  {
+    title: 'SLSA Level 3 provenance',
+    body: 'Every nox release ships a SLSA v1.0 provenance attestation alongside cosign keyless signatures. Enterprises verify both before promoting to production.',
+    code: `cosign verify-attestation \\
+  --certificate-identity-regexp \\
+    "(?i)https://github.com/Nox-HQ/nox/.github/workflows/.*" \\
+  --certificate-oidc-issuer \\
+    https://token.actions.githubusercontent.com \\
+  --type slsaprovenance \\
+  nox`,
+  },
+  {
+    title: 'MCP-native integration',
+    body: 'Internal AI agents query scan results through the built-in MCP server. Read-only tools, workspace allowlisting, output size limits. Drop-in for Claude Desktop / Cursor / your internal MCP host.',
+    code: `# Internal MCP host config
+{
+  "mcpServers": {
+    "nox": {
+      "command": "/usr/local/bin/nox",
+      "args": ["serve", "--allowed-paths", "/repos"]
+    }
+  }
+}`,
+  },
+];
+
+const fitTests = [
+  'You scan internal source repositories that cannot leave your network',
+  'You require a managed signer keyring (not just trust-on-first-use)',
+  'You serve plugins from an internal artifact server / Artifactory / Sonatype Nexus',
+  'You answer compliance questionnaires that ask "does this tool ship code off-host?"',
+  'You give AI agents access to security findings via MCP and need read-only sandboxed tools',
+  'You have an existing Sigstore / SLSA / supply-chain investment and want it leveraged',
+];
+---
+
+<BaseLayout
+  title="Nox for Enterprise — private registry, signer keyring, air-gapped"
+  description="Enterprise deployment of Nox: private plugin registry, Ed25519 signer keyring, air-gapped install, SLSA Level 3 provenance, 12 compliance frameworks. No SaaS, no source upload."
+>
+  <main>
+    <section class="section container intro">
+      <p class="kicker">Enterprise · Air-gapped · Self-hosted</p>
+      <h1>Nox for organisations that won't ship source code to a vendor.</h1>
+      <p class="lede">
+        Nox runs on your build hosts, with a private plugin registry, a managed Ed25519 signer keyring, and a SLSA Level 3 release attestation chain. Operators in regulated industries — finance, healthcare, defence, EU sovereign cloud — adopt Nox precisely because the SaaS-required scanners they're forced to evaluate cannot meet their data-residency or supply-chain requirements.
+      </p>
+      <div class="actions">
+        <a class="btn solid" href="#contact">Contact</a>
+        <a class="btn ghost" href="#fit">Is this you?</a>
+      </div>
+    </section>
+
+    <section class="section container">
+      <p class="kicker">Core principles</p>
+      <h2>What makes Nox enterprise-ready</h2>
+      <div class="cards three-col">
+        {corePrinciples.map((p) => (
+          <article class="card">
+            <h3>{p.title}</h3>
+            <p>{p.body}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="section container" id="fit">
+      <p class="kicker">Fit check</p>
+      <h2>Is Nox the right fit for your organisation?</h2>
+      <p class="lede">If you check three or more of these, Nox is likely the strongest open-source option for your environment:</p>
+      <ul class="fit-list">
+        {fitTests.map((f) => <li>{f}</li>)}
+      </ul>
+    </section>
+
+    <section class="section container">
+      <p class="kicker">Capabilities</p>
+      <h2>Enterprise deployment patterns</h2>
+      <div class="ent-grid">
+        {enterpriseNeeds.map((n) => (
+          <article class="ent-card">
+            <h3>{n.title}</h3>
+            <p>{n.body}</p>
+            <pre><code>{n.code}</code></pre>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="section container" id="contact">
+      <p class="kicker">Talk to us</p>
+      <h2>Evaluating Nox at scale?</h2>
+      <p class="lede">
+        We're a small team focused on making Nox excellent at its core mission. Enterprise inquiries — private registry hosting, signed evaluation reports, custom rule pack development, scoped security review of your AI integration patterns — go to the address below.
+      </p>
+      <p class="contact">
+        <a href="mailto:enterprise@nox-hq.dev">enterprise@nox-hq.dev</a>
+      </p>
+      <p class="footnote">
+        Open-source-only deployments stay free under Apache 2.0 forever. Enterprise inquiries help us prioritise the roadmap (next: managed private registry hosting, signed evaluation reports for procurement teams, GitHub Actions runner appliance for air-gapped CI).
+      </p>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .intro p, .lede { max-width: 78ch; }
+  .actions { margin-top: 1rem; display: flex; gap: 0.65rem; flex-wrap: wrap; }
+  .cards { display: grid; gap: 1rem; }
+  .cards.three-col { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .card { border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(165deg, var(--surface), var(--surface-soft)); padding: 1rem; }
+  .card h3 { font-size: 1.05rem; margin: 0 0 0.4rem; }
+  .card p { margin: 0; font-size: 0.9rem; line-height: 1.55; }
+  .fit-list { padding-left: 1.2rem; max-width: 78ch; color: var(--muted); line-height: 1.7; }
+  .fit-list li { margin-bottom: 0.5rem; }
+  .ent-grid { display: grid; gap: 1rem; }
+  .ent-card { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 1.1rem; }
+  .ent-card h3 { font-size: 1.1rem; margin: 0 0 0.5rem; }
+  .ent-card p { margin: 0 0 0.7rem; }
+  .ent-card pre { font-size: 0.82rem; }
+  .contact { font-size: 1.1rem; }
+  .contact a { color: var(--cyan); text-decoration: none; font-weight: 600; }
+  .footnote { font-size: 0.86rem; color: var(--muted); max-width: 76ch; }
+</style>

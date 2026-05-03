@@ -91,6 +91,24 @@ const ogImageURL = new URL(ogImage, 'https://nox-hq.dev').href;
     </main>
 
     <footer class="footer">
+      <div class="container">
+        <div class="newsletter">
+          <div>
+            <p class="newsletter-title">Get notified about new AI security rules</p>
+            <p class="newsletter-sub">Roughly one email a month — new rule families, scan-of-the-week findings, marketplace plugin releases. No spam.</p>
+          </div>
+          <form
+            class="newsletter-form"
+            action="https://buttondown.email/api/emails/embed-subscribe/nox-hq"
+            method="post"
+            target="_blank"
+          >
+            <input type="email" name="email" placeholder="you@company.com" required aria-label="Email address" />
+            <button type="submit" class="btn solid">Subscribe</button>
+          </form>
+        </div>
+      </div>
+
       <div class="container footer-inner">
         <div class="footer-col">
           <p class="footer-title">Product</p>
@@ -98,7 +116,16 @@ const ogImageURL = new URL(ogImage, 'https://nox-hq.dev').href;
             <li><a href="/features">Features</a></li>
             <li><a href="/plugins">Marketplace</a></li>
             <li><a href="/get-started">Get Started</a></li>
-            <li><a href="/compare/snyk">Migrate from Snyk</a></li>
+            <li><a href="/enterprise">Enterprise</a></li>
+            <li><a href="/blog">Blog</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <p class="footer-title">Compare</p>
+          <ul>
+            <li><a href="/compare/snyk">vs Snyk</a></li>
+            <li><a href="/compare/semgrep">vs Semgrep</a></li>
+            <li><a href="/compare/trivy">vs Trivy</a></li>
           </ul>
         </div>
         <div class="footer-col">
@@ -119,11 +146,11 @@ const ogImageURL = new URL(ogImage, 'https://nox-hq.dev').href;
             <li><a href="https://github.com/Nox-HQ/nox/blob/main/CONTRIBUTING.md" rel="noreferrer">Contributing</a></li>
           </ul>
         </div>
-        <div class="footer-col footer-meta">
-          <p>Open source under <a href="https://github.com/Nox-HQ/nox/blob/main/LICENSE" rel="noreferrer">Apache 2.0</a>.</p>
-          <p>Plugin marketplace verified via <a href="https://www.sigstore.dev/" rel="noreferrer">Sigstore</a> keyless OIDC.</p>
-          <p class="footer-license">© 2026 nox-hq</p>
-        </div>
+      </div>
+
+      <div class="container footer-meta-row">
+        <p>Open source under <a href="https://github.com/Nox-HQ/nox/blob/main/LICENSE" rel="noreferrer">Apache 2.0</a>. Marketplace verified via <a href="https://www.sigstore.dev/" rel="noreferrer">Sigstore</a> keyless OIDC.</p>
+        <p>© 2026 nox-hq</p>
       </div>
     </footer>
 
@@ -359,6 +386,69 @@ const ogImageURL = new URL(ogImage, 'https://nox-hq.dev').href;
     margin-top: 3rem;
     background: var(--surface);
   }
+
+  .newsletter {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1.4rem 1.6rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: linear-gradient(165deg, var(--surface), var(--surface-soft));
+  }
+
+  .newsletter-title {
+    font-weight: 700;
+    color: var(--text);
+    font-size: 1rem;
+    margin: 0 0 0.3rem !important;
+  }
+
+  .newsletter-sub {
+    font-size: 0.86rem;
+    color: var(--muted);
+    margin: 0 !important;
+    max-width: 56ch;
+  }
+
+  .newsletter-form {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .newsletter-form input {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.6rem 1rem;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.88rem;
+    min-width: 220px;
+  }
+
+  .newsletter-form input:focus {
+    outline: 2px solid var(--cyan);
+    outline-offset: 1px;
+  }
+
+  .footer-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 2rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .footer-meta-row p { margin: 0; }
+  .footer-meta-row a { color: var(--muted); text-decoration: underline; text-decoration-color: var(--line); }
+  .footer-meta-row a:hover { color: var(--text); }
 
   .footer-inner {
     display: grid;
