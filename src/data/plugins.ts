@@ -53,7 +53,7 @@ export const pluginTracks: PluginTrack[] = [
     plugins: [
       { name: 'nox-plugin-api-abuse', summary: 'API authorization testing (BOLA, BFLA, rate-limit) — 5 rules' },
       { name: 'nox-plugin-attack-surface', summary: 'Static endpoint extraction and exposure mapping (Go, Python, JS/TS frameworks)' },
-      { name: 'nox-plugin-dast', summary: 'DAST web/API misconfig probes (headers, CORS, TLS, cookies, rate-limit, open-redirect) — DAST-001..006', verified: true },
+      { name: 'nox-plugin-dast', summary: 'DAST web/API probes — HTTP misconfig (DAST-001..006) plus opt-in AI-DAST: prompt injection, system prompt leak, tool smuggling, cost amplification (DAST-007..010)', verified: true },
       { name: 'nox-plugin-k8s-runtime', summary: 'Live Kubernetes cluster security scanning (KRUNT-001..008)', verified: true },
       { name: 'nox-plugin-red-team', summary: 'Attack chain analysis and HTTP validation (REDTEAM-001..010)', verified: true },
       { name: 'nox-plugin-ai-eval', summary: 'Adversarial prompt corpus runner — jailbreak / system-leak / role-confusion / tool-misuse against a chat endpoint (AI-EVAL-001..004)', verified: true },
