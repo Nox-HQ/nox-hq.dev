@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: nox-hq/nox@v0.7.0
+      - uses: nox-hq/nox@v0.9.0
         with:
           path: '.'
           format: sarif
@@ -80,6 +80,33 @@ jobs:
       - uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results.sarif</code></pre>
+        </div>
+      </article>
+
+      <article class="step reveal">
+        <span class="step-num">3b</span>
+        <div>
+          <h2>Automated dependency remediation</h2>
+          <p class="step-desc">Open a PR that upgrades vulnerable dependencies on a schedule, with the project's own test suite as the gate.</p>
+          <pre><code>name: Nox Remediation
+on:
+  schedule:
+    - cron: '0 3 * * 1-5'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  remediate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: nox-hq/nox-remediate-action@v1
+        with:
+          path: .
+          verify-cmd: 'go test ./...'</code></pre>
         </div>
       </article>
 
