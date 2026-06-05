@@ -11,6 +11,7 @@
     "prebuild": "node scripts/gen-og.mjs"
   },
   "dependencies": {
+    "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.1",
     "@astrojs/vue": "^5.1.4",
     "@fontsource/sora": "^5.2.8",
