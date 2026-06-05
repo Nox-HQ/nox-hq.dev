@@ -4,7 +4,7 @@ description: "Nox now ships MCP threat detection mapped to the OWASP MCP Top 10.
 publishedAt: 2026-06-05
 author: nox-hq
 tags: [mcp, ai-security, false-positives, precision, owasp-mcp-top-10]
-draft: true
+draft: false
 ---
 
 Nox just shipped MCP threat detection: rules for tool poisoning, rug-pull

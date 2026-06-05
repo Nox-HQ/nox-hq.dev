@@ -9,7 +9,7 @@ const stats = [
   { label: 'Output formats', value: '6' },
 ];
 
-const trustLogos = ['Sigstore', 'GitHub Actions', 'MCP', 'SARIF', 'CycloneDX', 'SPDX', 'OWASP LLM Top 10', 'OWASP Agentic'];
+const trustLogos = ['Sigstore', 'GitHub Actions', 'MCP', 'SARIF', 'CycloneDX', 'SPDX', 'OWASP MCP Top 10', 'OWASP LLM Top 10', 'OWASP Agentic'];
 
 const detects = [
   {
@@ -19,10 +19,10 @@ const detects = [
     desc: 'API keys, tokens, and credentials across major cloud, SaaS, and CI providers with pattern + entropy detection.',
   },
   {
-    category: 'AI Security',
-    count: '21',
+    category: 'AI & MCP Security',
+    count: 'MCP',
     color: 'var(--cyan)',
-    desc: 'Prompt injection at the call site, embedding leakage, agent over-privilege, MCP hardening, AI taint flow — full OWASP LLM Top 10 + Agentic coverage.',
+    desc: 'Prompt injection at the call site, embedding leakage, agent over-privilege, and AI taint flow — plus full MCP threat coverage (tool poisoning, rug-pull, auth/SSRF, shadow servers) mapped to the OWASP MCP Top 10, OWASP LLM Top 10, and Agentic.',
   },
   {
     category: 'Infrastructure',
@@ -117,6 +117,7 @@ plugins:
             For teams shipping LLM features — `chat.completions.create`, RAG ingest, agents with tool calls, MCP servers — Nox catches what every other scanner misses, plus secrets, deps, IaC, and containers in one deterministic pass.
           </p>
           <ul class="hero-bullets">
+            <li><strong>Full MCP threat coverage</strong> — tool poisoning, rug-pull, auth / SSRF, and shadow servers, mapped to the OWASP MCP Top 10. The MCP scanner that never sees your code: <code>nox scan . --offline</code>, no API, no token, no telemetry.</li>
             <li><strong>Prompt injection</strong> at the call site (OWASP LLM01)</li>
             <li><strong>Embedding leakage</strong> when secrets / PII reach vector stores (LLM06)</li>
             <li><strong>Agent over-privilege</strong> when `file_read` + `http_request` share an agent context (LLM07)</li>
