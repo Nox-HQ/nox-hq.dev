@@ -371,9 +371,14 @@ const structuredData = jsonLd ?? {
     font-weight: 700;
   }
 
+  .brand {
+    flex-shrink: 0;
+  }
+
   .brand img {
     width: 34px;
     height: 34px;
+    flex-shrink: 0;
   }
 
   nav {
@@ -695,6 +700,16 @@ const structuredData = jsonLd ?? {
       font-size: 1rem;
       padding: 0.7rem 0.8rem;
       border-radius: 10px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .header-actions {
+      gap: 0.3rem;
+    }
+    /* Compact the GitHub CTA: keep the icon + star count, drop the label. */
+    .github-cta > span:not(.star-count) {
+      display: none;
     }
   }
 

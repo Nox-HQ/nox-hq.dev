@@ -68,10 +68,10 @@ a {
 }
 
 .container {
-  width: 100%;
-  max-width: var(--max);
+  /* Width-based gutter (not padding): .section uses a `padding: X 0`
+     shorthand that would otherwise zero a padding-inline gutter. */
+  width: min(var(--max), 100% - 2 * var(--gutter));
   margin-inline: auto;
-  padding-inline: var(--gutter);
 }
 
 /* ---- Responsive base (applies site-wide) ---- */
