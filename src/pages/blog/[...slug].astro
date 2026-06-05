@@ -106,6 +106,33 @@ const blogPostingLd = {
     padding: 0.4rem 1rem;
     color: var(--muted);
   }
+  /* Tables scroll horizontally on narrow screens instead of breaking layout. */
+  .prose :global(table) {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 1.3rem 0;
+    -webkit-overflow-scrolling: touch;
+  }
+  .prose :global(th),
+  .prose :global(td) {
+    border: 1px solid var(--line);
+    padding: 0.5rem 0.7rem;
+    text-align: left;
+    white-space: nowrap;
+  }
+  .prose :global(th) {
+    background: var(--surface-soft);
+    color: var(--text);
+    font-weight: 700;
+  }
+  .prose :global(img) {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--line);
+  }
   .tags {
     margin: 2rem 0 0;
     padding: 1rem 0 0;
