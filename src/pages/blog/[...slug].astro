@@ -38,6 +38,7 @@ const blogPostingLd = {
 <BaseLayout
   title={`${post.data.title} — Nox blog`}
   description={post.data.description}
+  ogImage={`/og/${post.slug}.png`}
   ogType="article"
   article={{ publishedTime: publishedISO, author: post.data.author, tags: post.data.tags }}
   jsonLd={blogPostingLd}
