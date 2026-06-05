@@ -1,6 +1,6 @@
 ---
 title: "We scanned the 56 most-used MCP servers. Zero vulnerabilities. Here's what we actually learned."
-description: "Nox now ships MCP threat detection mapped to the OWASP MCP Top 10. Before asking anyone to trust it, we ran it against 56 of the most-installed public MCP servers and our own. We found no vulnerabilities — and a lot about what makes a scanner worth trusting."
+description: "We ran Nox's offline MCP security scanner against the 56 most-used public MCP servers. Zero vulnerabilities, zero disclosures — and a hard lesson in scanner precision."
 publishedAt: 2026-06-05
 author: nox-hq
 tags: [mcp, ai-security, false-positives, precision, owasp-mcp-top-10]

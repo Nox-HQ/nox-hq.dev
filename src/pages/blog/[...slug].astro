@@ -14,9 +14,34 @@ export const getStaticPaths = (async () => {
 const { post } = Astro.props;
 const { Content } = await post.render();
 const fmt = new Intl.DateTimeFormat('en-US', { dateStyle: 'long' });
+
+const publishedISO = post.data.publishedAt.toISOString();
+const postURL = new URL(`/blog/${post.slug}`, 'https://nox-hq.dev').href;
+const blogPostingLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: publishedISO,
+  author: { '@type': 'Organization', name: post.data.author },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Nox',
+    logo: { '@type': 'ImageObject', url: 'https://nox-hq.dev/nox-logo.png' },
+  },
+  keywords: post.data.tags.join(', '),
+  mainEntityOfPage: { '@type': 'WebPage', '@id': postURL },
+  url: postURL,
+};
 ---
 
-<BaseLayout title={`${post.data.title} — Nox blog`} description={post.data.description}>
+<BaseLayout
+  title={`${post.data.title} — Nox blog`}
+  description={post.data.description}
+  ogType="article"
+  article={{ publishedTime: publishedISO, author: post.data.author, tags: post.data.tags }}
+  jsonLd={blogPostingLd}
+>
   <main>
     <article class="section container post">
       <p class="kicker">
