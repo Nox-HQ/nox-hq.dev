@@ -1,7 +1,7 @@
 ---
 title: "Scan of the week: LangGraph — 134,614 findings, and the 'critical' one was us"
 description: "Nox scanned langchain-ai/langgraph: 134,614 findings, 99.8% noise. The lone critical AI finding flagged code that prevents the attack. Zero true positives; one AI-019 rule fix."
-publishedAt: 2026-06-05
+publishedAt: 2026-06-21
 author: nox-hq
 tags: [scan-of-the-week, ai-security, false-positives, precision]
 ---

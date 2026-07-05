@@ -1,7 +1,7 @@
 ---
 title: "Scan of the week: the MCP Python SDK"
 description: "We ran Nox against modelcontextprotocol/python-sdk plus 6 other popular LLM/agent repos. Here's what AI-aware scanning catches in 2 seconds — across all 7."
-publishedAt: 2026-05-04
+publishedAt: 2026-04-26
 author: nox-hq
 tags: [scan-of-the-week, mcp, ai-security, bench]
 ---

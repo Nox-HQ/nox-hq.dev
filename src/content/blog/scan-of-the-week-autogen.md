@@ -1,7 +1,7 @@
 ---
 title: "Scan of the week: AutoGen — 304,629 findings, and 99.5% are SVGs and lock files"
 description: "Nox scanned microsoft/autogen: 304,629 findings, dominated by base64-encoded SVG art triggering 10 broad-pattern rules. Fixed the same FP cluster that hit LangGraph."
-publishedAt: 2026-06-15
+publishedAt: 2026-07-05
 author: nox-hq
 tags: [scan-of-the-week, ai-security, false-positives, precision]
 ---
