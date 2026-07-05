@@ -17,6 +17,8 @@ const features = [
       'Prompt injection at the call site (AI-PI-*, OWASP LLM01)',
       'Embedding leakage when secrets / PII reach vector stores (LLM06)',
       'Agent over-privilege when file_read + http_request share a context (LLM07)',
+      'Agent-config execution surface (AGENT-001..004) — injection, permission-bypass, wildcard tool grants, exfiltration in .cursorrules / CLAUDE.md / .claude/settings.json',
+      'OWASP Top 10 for Agentic Applications (ASI01–ASI10) mapping on findings',
       'Cross-file AI taint — request.json → service hop → chat.completions.create',
       'MCP server hardening misconfigs (MCP-001..008)',
       'Polyglot AIBOM v2.0 — every model invocation, auth env, and endpoint',
@@ -55,9 +57,9 @@ const features = [
   {
     title: 'Policy and Governance',
     items: [
-      'Fail/warn thresholds for CI policy gates',
-      'Baseline management for known findings and controlled suppression',
-      'GRC compliance across 12 frameworks (SOC2, ISO 27001, GDPR, FedRAMP L/M/H, HIPAA, PCI-DSS, NIST 800-53, NIST CSF, CIS v8, CMMC) via plugin',
+      'Fail/warn thresholds and per-severity budgets for CI policy gates',
+      'One-command adoption (nox baseline init) — record existing debt, gate the change',
+      'GRC compliance across 15 frameworks (SOC2, ISO 27001, GDPR, FedRAMP L/M/H, HIPAA, PCI-DSS, NIST 800-53, NIST CSF, CIS v8, CMMC, EU AI Act, ISO 42001, NIST AI RMF) via plugin',
       'Inline suppressions with audit trail and expiry',
     ],
   },
@@ -83,10 +85,13 @@ const features = [
   {
     title: 'Developer Experience',
     items: [
+      'Inline editor diagnostics via nox lsp (Language Server) + VS Code extension — deterministic, offline',
+      'Deterministic fix patches for mechanical misconfigs (nox fix --content) — never LLM-guessed',
+      'Reachability-aware finding prioritization (--sort priority) sinks likely false positives',
       'Watch mode for continuous scanning during development',
       'Pre-commit hooks and shell completions',
       'Incremental scan cache with content-addressed SHA-256',
-      'Differential scanning with --changed-since for fast CI',
+      'Differential scanning with --changed-since and single-file scans for fast CI + hooks',
       'nox bench --autocorpus — reproducible fire-rate vs. real LLM SDK repos',
     ],
   },
