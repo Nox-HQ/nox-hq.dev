@@ -1,7 +1,7 @@
 ---
 title: "Scan of the week: smolagents (or, when a scanner flags a package as a typo of itself)"
 description: "Nox scanned huggingface/smolagents — 323 findings, 65% from one example folder, zero real vulnerabilities, and one genuine bug in our own typosquatting rule."
-publishedAt: 2026-06-05
+publishedAt: 2026-05-29
 author: nox-hq
 tags: [scan-of-the-week, ai-security, agents, false-positives, precision]
 ---
