@@ -1,7 +1,7 @@
 ---
 title: "Scan of the week: Haystack (or, why 12,367 findings is mostly a docs folder)"
 description: "Nox scanned deepset-ai/haystack and returned 12,367 findings. Strip the docs tree and it collapses to one real low-severity issue — plus a precision bug we fixed in our own rules."
-publishedAt: 2026-06-05
+publishedAt: 2026-05-22
 author: nox-hq
 tags: [scan-of-the-week, ai-security, rag, false-positives, precision]
 ---
