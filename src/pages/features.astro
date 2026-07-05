@@ -17,11 +17,20 @@ const features = [
       'Prompt injection at the call site (AI-PI-*, OWASP LLM01)',
       'Embedding leakage when secrets / PII reach vector stores (LLM06)',
       'Agent over-privilege when file_read + http_request share a context (LLM07)',
-      'Agent-config execution surface (AGENT-001..004) — injection, permission-bypass, wildcard tool grants, exfiltration in .cursorrules / CLAUDE.md / .claude/settings.json',
+      'Agent-config execution surface (AGENT-001..006) — injection, permission-bypass, wildcard tool grants, exfiltration, unauthenticated A2A agent cards (ASI07), and DXT extension command injection (ASI02)',
       'OWASP Top 10 for Agentic Applications (ASI01–ASI10) mapping on findings',
       'Cross-file AI taint — request.json → service hop → chat.completions.create',
       'MCP server hardening misconfigs (MCP-001..008)',
       'Polyglot AIBOM v2.0 — every model invocation, auth env, and endpoint',
+    ],
+  },
+  {
+    title: 'Supply-chain integrity (deterministic, offline)',
+    items: [
+      'Slopsquatting / hallucinated-package detection (SLOP-001) — imports of a package in no manifest, no standard library, no local module (Python + JS/TS)',
+      'CVE-variant detection (nox variants, VARIANT-*) — first-party code reproducing Log4Shell, Zip Slip, PyYAML full-loader, tar traversal, SSTI, or shell interpolation',
+      'Dependency provenance (PROV-001/002, ASI04 / SLSA) — non-registry (VCS/URL/tarball) sources and mutable-ref pins instead of immutable commit SHAs',
+      'Version-based SCA across 8 ecosystems via OSV.dev, enriching CycloneDX / SPDX SBOM',
     ],
   },
   {
@@ -85,7 +94,7 @@ const features = [
   {
     title: 'Developer Experience',
     items: [
-      'Inline editor diagnostics via nox lsp (Language Server) + VS Code extension — deterministic, offline',
+      'Inline editor diagnostics via nox lsp (Language Server) — VS Code and JetBrains extensions, deterministic and offline',
       'Deterministic fix patches for mechanical misconfigs (nox fix --content) — never LLM-guessed',
       'Reachability-aware finding prioritization (--sort priority) sinks likely false positives',
       'Watch mode for continuous scanning during development',

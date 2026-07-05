@@ -122,6 +122,7 @@ plugins:
             <li><strong>Embedding leakage</strong> when secrets / PII reach vector stores (LLM06)</li>
             <li><strong>Agent over-privilege</strong> when `file_read` + `http_request` share an agent context (LLM07)</li>
             <li><strong>Cross-file AI taint</strong> — `request.json` → service hop → `chat.completions.create` across functions and files</li>
+            <li><strong>Slopsquatting &amp; CVE variants</strong> — hallucinated-package imports and first-party code reproducing known-CVE root causes, deterministic and offline</li>
             <li><strong>Cosign-signed plugin marketplace</strong> — every official plugin verified via Sigstore keyless OIDC</li>
           </ul>
           <div class="actions">
