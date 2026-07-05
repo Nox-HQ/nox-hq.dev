@@ -1,7 +1,7 @@
 ---
 title: "Scan of the week: anthropic-cookbook (or, what 1.95M findings teach you about precision)"
 description: "We pointed Nox at anthropic-cookbook. It returned 1,950,121 findings. Almost all of them are wrong. Here is what that taught us about RAG-corpus false positives, the literal_eval / eval distinction, and how a real CLAUDE-uses-MCP fixture trips the AI-004 rule."
-publishedAt: 2026-05-09
+publishedAt: 2026-05-10
 author: nox-hq
 tags: [scan-of-the-week, ai-security, false-positives, precision]
 ---
