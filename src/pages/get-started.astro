@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: nox-hq/nox@v0.9.5
+      - uses: nox-hq/nox@v1.5.0
         with:
           path: '.'
           format: sarif
@@ -155,7 +155,7 @@ plugins:
     - nox/reachability        # filter VULN by import reachability
     - nox/taint-analysis      # cross-file + AI taint flow
     - nox/k8s-runtime         # live cluster scanning
-    - nox/grc                 # 12 compliance frameworks
+    - nox/grc                 # 15 compliance frameworks (incl. EU AI Act, ISO 42001, NIST AI RMF)
   trust_policy: default       # require Cosign keyless or Ed25519
 
 # First scan auto-installs missing required plugins.
