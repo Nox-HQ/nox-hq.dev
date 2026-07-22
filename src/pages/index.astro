@@ -1,11 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { pluginTotalCount, verifiedPlugins } from '../data/plugins';
+import { currentPluginCount, verifiedPlugins } from '../data/plugins';
 
 const stats = [
-  { label: 'Security rules', value: '717' },
-  { label: 'Plugins', value: String(pluginTotalCount) },
-  { label: 'Verified in marketplace', value: String(verifiedPlugins.length) },
+  { label: 'Security rules', value: '1,528' },
+  { label: 'Languages under taint analysis', value: '21' },
+  { label: 'Verified plugins', value: String(verifiedPlugins.length) },
   { label: 'Output formats', value: '6' },
 ];
 
@@ -14,27 +14,33 @@ const trustLogos = ['Sigstore', 'GitHub Actions', 'MCP', 'SARIF', 'CycloneDX', '
 const detects = [
   {
     category: 'Secrets',
-    count: '160',
+    count: '913',
     color: 'var(--blue)',
-    desc: 'API keys, tokens, and credentials across major cloud, SaaS, and CI providers with pattern + entropy detection.',
+    desc: 'API keys, tokens, and credentials across major cloud, SaaS, and CI providers. Vendor rules require the keyword near the match plus credential-grade entropy and shape, so they stay quiet on ordinary code.',
   },
   {
     category: 'AI & MCP Security',
-    count: 'MCP',
+    count: '88',
     color: 'var(--cyan)',
-    desc: 'Prompt injection at the call site, embedding leakage, agent over-privilege, and AI taint flow — plus full MCP threat coverage (tool poisoning, rug-pull, auth/SSRF, shadow servers) mapped to the OWASP MCP Top 10, OWASP LLM Top 10, and Agentic.',
+    desc: 'Prompt injection at the call site, embedding leakage, agent over-privilege, and agent-config execution surface — plus MCP threat coverage (tool poisoning, rug-pull, auth/SSRF, shadow servers) mapped to the OWASP MCP Top 10, OWASP LLM Top 10, and Agentic ASI01–ASI10.',
   },
   {
     category: 'Infrastructure',
-    count: '369',
+    count: '500',
     color: 'var(--violet)',
     desc: 'Terraform, Kubernetes, Docker, GitHub Actions, Helm, Ansible, Kustomize, Serverless, plus cross-resource graph analysis.',
   },
   {
+    category: 'Taint & dataflow',
+    count: '21',
+    color: 'var(--magenta)',
+    desc: 'SQL injection, command injection, XSS, path traversal, unsafe deserialization, SSRF and open redirect tracked from source to sink across 21 languages — plus AGENTFLOW rules for untrusted input reaching a prompt and LLM output reaching a dangerous sink.',
+  },
+  {
     category: 'Dependencies',
     count: 'SCA',
-    color: 'var(--magenta)',
-    desc: 'OSV.dev vulnerability lookups + reachability filtering + license compliance across 7 ecosystems.',
+    color: 'var(--blue)',
+    desc: 'OSV.dev lookups with real CVSS v3 base scores across 7 ecosystems and 13 lockfile formats, per-package advisory matching, reachability filtering, and license compliance.',
   },
   {
     category: 'Data Protection',
@@ -55,7 +61,7 @@ const pillars = [
   },
   {
     title: 'Agent-native via MCP',
-    text: 'Built-in MCP server with 10 read-only tools and 5 resources. AI agents can query scan results safely without write access or code execution.',
+    text: 'Built-in MCP server with 22 read-only tools and 8 resources. AI agents can query scan results safely without write access or code execution, under workspace allowlisting and a 1 MB output cap.',
   },
 ];
 
@@ -72,7 +78,7 @@ const steps = [
   {
     num: '01',
     title: 'Install and scan',
-    code: 'brew install nox\nnox scan .',
+    code: 'brew install felixgeelhaar/tap/nox\nnox scan .',
   },
   {
     num: '02',
@@ -90,11 +96,12 @@ plugins:
   {
     num: '03',
     title: 'Enforce in CI',
-    code: `- uses: nox-hq/nox@v1.5.0
+    code: `- uses: nox-hq/nox@v1
   with:
     path: '.'
     format: sarif
     annotate: 'true'
+    severity-threshold: high
 - uses: github/codeql-action/upload-sarif@v3
   with:
     sarif_file: results.sarif`,
@@ -104,7 +111,7 @@ plugins:
 
 <BaseLayout
   title="Nox — The security scanner that understands your AI app"
-  description="Open-source security scanner with first-class AI app security: prompt injection at the call site, embedding leakage, agent over-privilege, MCP hardening, cross-file AI taint. 717 rules, Cosign-signed plugin marketplace, agent-native via MCP."
+  description="Open-source security scanner with first-class AI app security: prompt injection at the call site, embedding leakage, agent over-privilege, MCP hardening, cross-file AI taint. 1,528 rules, a 21-language taint engine, a Cosign-signed plugin marketplace, and agent-native access via MCP."
 >
   <main>
     <!-- Hero -->
@@ -123,6 +130,8 @@ plugins:
             <li><strong>Agent over-privilege</strong> when `file_read` + `http_request` share an agent context (LLM07)</li>
             <li><strong>Cross-file AI taint</strong> — `request.json` → service hop → `chat.completions.create` across functions and files</li>
             <li><strong>Slopsquatting &amp; CVE variants</strong> — hallucinated-package imports and first-party code reproducing known-CVE root causes, deterministic and offline</li>
+            <li><strong>Taint analysis across 21 languages</strong> — source to sink, deterministic, no tree-sitter and no CGo</li>
+            <li><strong>It tells you what it could not check</strong> — an OSV outage or a dead plugin is reported, not silently passed</li>
             <li><strong>Cosign-signed plugin marketplace</strong> — every official plugin verified via Sigstore keyless OIDC</li>
           </ul>
           <div class="actions">
@@ -141,7 +150,7 @@ plugins:
               </article>
             ))}
           </div>
-          <pre><code>$ brew install nox
+          <pre><code>$ brew install felixgeelhaar/tap/nox
 $ nox scan .</code></pre>
         </aside>
       </div>
@@ -169,7 +178,7 @@ $ nox scan .</code></pre>
         {verifiedPlugins.map((p, i) => (
           <article class={`market-card reveal ${i % 3 === 1 ? 'd2' : i % 3 === 2 ? 'd3' : ''}`}>
             <div class="market-top">
-              <code>nox/{p.name.replace(/^nox-plugin-/, '')}</code>
+              <code>{p.name}</code>
               <span class="verified-badge" aria-label="Cosign keyless verified">✓ Verified</span>
             </div>
             <p>{p.summary}</p>
@@ -177,7 +186,7 @@ $ nox scan .</code></pre>
         ))}
       </div>
       <p class="market-footer">
-        <a href="/plugins">Browse all {pluginTotalCount} plugins →</a>
+        <a href="/plugins">Browse all {currentPluginCount} plugins →</a>
       </p>
     </section>
 
@@ -186,7 +195,7 @@ $ nox scan .</code></pre>
       <div class="detect-header">
         <p class="kicker">Detection coverage</p>
         <h2>What Nox detects</h2>
-        <p>Five analyzer suites covering the full attack surface of modern applications.</p>
+        <p>1,528 catalog rules plus a dataflow engine, across six analyzer suites covering the full attack surface of modern applications.</p>
       </div>
       <div class="detect-grid">
         {detects.map((d, i) => (
@@ -246,13 +255,15 @@ $ nox scan .</code></pre>
 <span class="t-dim">nox — scanning .</span>
 
 <span class="t-cyan">[discover]</span> 847 files, 12 lockfiles, 3 AI components
-<span class="t-cyan">[analyze]</span> secrets, iac, deps, ai, data
+<span class="t-cyan">[analyze]</span> secrets, iac, deps, taint, ai, data
 <span class="t-cyan">[results]</span> 12 findings (3 suppressed), 47 dependencies, 3 AI components
+<span class="t-amber">[degraded]</span> vulnerability lookup failed for 1 package
+<span class="t-dim">           impact: dependency vulnerabilities are under-reported</span>
 <span class="t-green">[done]</span> wrote findings.json, results.sarif, sbom.cdx.json
 
 <span class="t-prompt">$</span> nox plugin install nox/reachability
 <span class="t-cyan">Trust:</span> community (signer: cosign-keyless:.../release.yml@.*)
-<span class="t-green">Installed</span> nox/reachability@0.6.5 (community)</code></pre>
+<span class="t-green">Installed</span> nox/reachability@0.7.1 (community)</code></pre>
         </div>
       </div>
     </section>
@@ -630,6 +641,10 @@ $ nox scan .</code></pre>
 
   .terminal :global(.t-green) {
     color: #28c840;
+  }
+
+  .terminal :global(.t-amber) {
+    color: #febc2e;
   }
 
   /* Pillars */

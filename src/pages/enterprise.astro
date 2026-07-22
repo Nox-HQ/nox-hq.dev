@@ -46,7 +46,7 @@ nox registry add https://artifacts.acme.internal/nox-mirror.json \\
   },
   {
     title: 'Compliance posture',
-    body: 'nox/grc covers 12 frameworks: SOC 2, ISO 27001, GDPR, FedRAMP Low / Moderate / High, HIPAA, PCI-DSS, NIST 800-53, NIST CSF, CIS v8, CMMC. Generate audit-ready evidence bundles directly from scan output.',
+    body: 'nox/grc covers 10 frameworks with gap analysis and evidence collection. Generate audit-ready evidence bundles directly from scan output.',
     code: `nox plugin call grc gap_report \\
   framework=fedramp-moderate \\
   output=fedramp-moderate-gap.json`,
@@ -64,7 +64,7 @@ nox registry add https://artifacts.acme.internal/nox-mirror.json \\
   },
   {
     title: 'MCP-native integration',
-    body: 'Internal AI agents query scan results through the built-in MCP server. Read-only tools, workspace allowlisting, output size limits. Drop-in for Claude Desktop / Cursor / your internal MCP host.',
+    body: 'Internal AI agents query scan results through the built-in MCP server: 22 read-only tools and 8 resources, under workspace allowlisting and a 1 MB output cap enforced on every tool. Drop-in for Claude Desktop / Cursor / your internal MCP host.',
     code: `# Internal MCP host config
 {
   "mcpServers": {

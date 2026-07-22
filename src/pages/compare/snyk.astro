@@ -5,14 +5,15 @@ const capabilityMap = [
   { snyk: 'snyk test (dependencies)', nox: 'nox scan (VULN-001..003)', note: 'OSV-backed, offline cache, same JSON shape' },
   { snyk: 'snyk monitor (SaaS state)', nox: 'commit findings.json + diff in CI', note: 'No SaaS, git-native baseline' },
   { snyk: 'Reachability (paid tier)', nox: 'nox/reachability (verified, bundled)', note: '7 ecosystems: Go, PyPI, npm, Cargo, Maven, RubyGems, NuGet' },
-  { snyk: 'Snyk Code (SAST)', nox: 'core SEC-* + nox/sast', note: '160 secret detectors in core; code-injection in plugin' },
-  { snyk: 'Snyk IaC', nox: 'core IAC-001..369', note: 'Terraform, K8s, Dockerfile, GHA, Ansible, Kustomize, Serverless' },
+  { snyk: 'Snyk Code (SAST)', nox: 'core taint engine (TAINT-001..007)', note: '21 languages, interprocedural within a file, measured precision 1.00' },
+  { snyk: 'Secret detection', nox: '913 core SEC rules', note: 'Keyword proximity + credential-grade entropy, so they stay quiet on ordinary code' },
+  { snyk: 'Snyk IaC', nox: '500 core IAC rules', note: 'Terraform, K8s, Dockerfile, GHA, Ansible, Kustomize, Serverless, Helm' },
   { snyk: 'Snyk Container', nox: 'core CONT-* + nox/container', note: 'Pin/tag rules in core; image scan in plugin (22 rules)' },
   { snyk: 'Snyk AI (limited)', nox: 'core AI-* + LLM/Agentic families', note: 'OWASP LLM Top 10 + Agentic shipped today' },
   { snyk: 'snyk ignore (policy file)', nox: 'OpenVEX (vex.json)', note: 'Standard format, fingerprint-pinned, RuleID-matching' },
   { snyk: 'Severity threshold', nox: '--severity-threshold high', note: 'Same semantics' },
-  { snyk: 'GitHub PR comments', nox: 'nox-hq/nox@v0.9.5 action', note: 'SARIF upload + inline review comments' },
-  { snyk: 'Org policy / dashboard', nox: '.nox.yaml + nox/policy-gate', note: 'Code, not config UI' },
+  { snyk: 'GitHub PR comments', nox: 'nox-hq/nox@v1 action', note: 'SARIF upload with security-severity + inline review comments' },
+  { snyk: 'Org policy / dashboard', nox: '.nox.yaml policy thresholds', note: 'Code, not config UI' },
 ];
 
 const wins = [
@@ -24,6 +25,7 @@ const wins = [
   { title: 'Manifest-driven plugins', body: '.nox.yaml plugins.required ships pinned, signed plugin sets the way package.json ships dependencies. No dashboard config.' },
   { title: 'MCP-native', body: 'Built-in MCP server lets Claude / Cursor / any agent query scan results read-only. Snyk has no agent surface.' },
   { title: 'Apache 2.0', body: 'Free to use, fork, deploy in air-gapped environments without a vendor relationship.' },
+  { title: 'It tells you what it could not check', body: 'An OSV outage, a dead plugin or an unparseable lockfile is recorded in findings.json under meta.degradations and printed even under --quiet, and --fail-on-degraded turns it into a CI failure. A scan that could not look is not reported as a scan that found nothing.' },
 ];
 
 const losses = [

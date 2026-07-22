@@ -1,10 +1,34 @@
+/**
+ * The official plugin catalog, mirroring
+ * https://raw.githubusercontent.com/nox-hq/registry/main/index.json
+ *
+ * The registry moved out of the nox repository in 1.10.0 and into
+ * Nox-HQ/registry; nox only consumes the published index over HTTP. Summaries
+ * and tracks here are taken from that index so the site and the tool agree.
+ * Verified against the index at nox 1.13.6.
+ */
+
+export type PluginStatus = 'current' | 'deprecated' | 'retired';
+
 export type PluginEntry = {
   name: string;
   summary: string;
-  /** Whether the plugin is published in the official registry with a
-   * Cosign keyless signature. Surfaced as a "✓ Verified" badge on the
-   * marketplace page and used to filter the featured row. */
+  /** Latest version published to the official registry. */
+  version?: string;
+  /**
+   * Whether the plugin is published in the official registry with a Cosign
+   * keyless signature. Surfaced as a "✓ Verified" badge and used to filter
+   * the featured row.
+   */
   verified?: boolean;
+  /**
+   * `deprecated` is the registry's own flag — still installable, no longer
+   * recommended. `retired` means the capability moved into core and the
+   * plugin should not be adopted.
+   */
+  status?: PluginStatus;
+  /** Shown alongside a deprecated/retired badge to say what to use instead. */
+  replacedBy?: string;
 };
 
 export type PluginTrack = {
@@ -33,10 +57,37 @@ export const pluginTracks: PluginTrack[] = [
     description:
       'Static analysis plugins for source and config files. Fast, deterministic, and safe in local and CI workflows.',
     plugins: [
-      { name: 'nox-plugin-container', summary: 'Dockerfile linting, image vulnerability scanning, container SBOM (22 rules)', verified: true },
-      { name: 'nox-plugin-sast', summary: 'Language-specific vulnerability detection (SQL injection, XSS, path traversal) — 10 rules', verified: true },
-      { name: 'nox-plugin-reachability', summary: 'Multi-language reachability for VULN findings (Go, PyPI, npm, Cargo, Maven, RubyGems, NuGet)', verified: true },
-      { name: 'nox-plugin-taint-analysis', summary: 'Cross-file & interprocedural taint flow including AI source-to-sink (TAINT-001..007 + TAINT-AI-001/002)', verified: true },
+      {
+        name: 'nox/reachability',
+        version: '0.7.1',
+        summary:
+          'Multi-language reachability analysis. Annotates VULN findings as unreachable, reachable or undetermined across Go, PyPI, npm, Cargo, Maven, RubyGems and NuGet. Bundled in the nox release archive.',
+        verified: true,
+        status: 'current',
+      },
+      {
+        name: 'nox/taint-analysis',
+        version: '0.7.1',
+        summary:
+          'Cross-file and interprocedural taint flow, including AI source-to-sink paths, on top of the taint engine in core.',
+        verified: true,
+        status: 'current',
+      },
+      {
+        name: 'nox/container',
+        version: '0.2.2',
+        summary: 'Dockerfile linting, image vulnerability scanning and container SBOM (22 rules).',
+        verified: true,
+        status: 'current',
+      },
+      {
+        name: 'nox/sast',
+        version: '0.2.1',
+        summary:
+          'Retired in nox 1.10.0. Seven of its nine rules duplicated vulnerability classes the core taint engine already detects, reporting each finding twice under a second rule-ID namespace. Its two additive rules moved into core: weak crypto as CRYPTO-001 and open redirect as TAINT-007.',
+        status: 'retired',
+        replacedBy: 'core taint engine (TAINT-*, CRYPTO-001)',
+      },
     ],
   },
   {
@@ -49,14 +100,62 @@ export const pluginTracks: PluginTrack[] = [
     readOnly: 'no',
     characteristics: 'Environment-aware, scope-bounded, requires confirmation',
     description:
-      'Runtime-facing plugins for active testing of deployed services and environments with explicit opt-in.',
+      'Runtime-facing plugins for active testing of deployed services and environments with explicit opt-in. Per-tool safety declarations (1.9.0) let a read-only tool in one of these plugins run under a passive policy while its active siblings stay gated.',
     plugins: [
-      { name: 'nox-plugin-api-abuse', summary: 'API authorization testing (BOLA, BFLA, rate-limit) — 5 rules', verified: true },
-      { name: 'nox-plugin-attack-surface', summary: 'Static endpoint extraction and exposure mapping (Go, Python, JS/TS frameworks)', verified: true },
-      { name: 'nox-plugin-dast', summary: 'DAST web/API probes — HTTP misconfig (DAST-001..006) plus opt-in AI-DAST: prompt injection, system prompt leak, tool smuggling, cost amplification (DAST-007..010)', verified: true },
-      { name: 'nox-plugin-k8s-runtime', summary: 'Live Kubernetes cluster security scanning (KRUNT-001..008)', verified: true },
-      { name: 'nox-plugin-red-team', summary: 'Attack chain analysis and HTTP validation (REDTEAM-001..010)', verified: true },
-      { name: 'nox-plugin-ai-eval', summary: 'Adversarial prompt corpus runner — jailbreak / system-leak / role-confusion / tool-misuse against a chat endpoint (AI-EVAL-001..004)', verified: true },
+      {
+        name: 'nox/dast',
+        version: '0.3.2',
+        summary:
+          'DAST web/API probes for HTTP misconfiguration — headers, CORS, TLS, cookies, rate limiting, open redirect — plus opt-in AI-DAST: prompt injection, system-prompt leak, tool smuggling, cost amplification.',
+        verified: true,
+        status: 'current',
+      },
+      {
+        name: 'nox/k8s-runtime',
+        version: '0.7.1',
+        summary: 'Inspects running Kubernetes workloads for security misconfigurations and drift.',
+        verified: true,
+        status: 'current',
+      },
+      {
+        name: 'nox/red-team',
+        version: '0.7.1',
+        summary:
+          'Attack-path analysis and exploit validation. Declares per-tool safety: analyze is passive, validate is active and requires confirmation.',
+        verified: true,
+        status: 'current',
+      },
+      {
+        name: 'nox/ai-eval',
+        version: '0.2.1',
+        summary:
+          'Adversarial prompt corpus runner. Fires a bundled jailbreak / prompt-leak / role-confusion corpus at a configured chat endpoint and reports which attacks succeeded.',
+        verified: true,
+        status: 'current',
+      },
+      {
+        name: 'nox/llm-triage',
+        version: '0.2.1',
+        summary:
+          'Optional LLM second opinion. Sends each finding plus a code snippet to a configured chat endpoint and attaches a true/false-positive verdict as an enrichment. Never gates the scan — the deterministic core is unaffected.',
+        verified: true,
+        status: 'current',
+      },
+      {
+        name: 'nox/api-abuse',
+        version: '0.2.2',
+        summary: 'API authorization testing for BOLA, BFLA, rate-limit and abuse patterns in server code (5 rules).',
+        verified: true,
+        status: 'current',
+      },
+      {
+        name: 'nox/attack-surface',
+        version: '0.2.2',
+        summary:
+          'Static endpoint extraction and exposure mapping across Go (net/http, Gin, Echo, Chi), Python (Flask, Django, FastAPI) and JavaScript/TypeScript (Express, Koa, Fastify).',
+        verified: true,
+        status: 'current',
+      },
     ],
   },
   {
@@ -68,9 +167,15 @@ export const pluginTracks: PluginTrack[] = [
     offline: 'no',
     readOnly: 'yes',
     characteristics: 'Artifact-centric, high audit value',
-    description: 'Integrity and provenance checks for build outputs, dependencies, and release artifacts.',
+    description: 'Integrity and provenance checks for build outputs, dependencies and release artifacts.',
     plugins: [
-      { name: 'nox-plugin-depconfusion', summary: 'Dependency confusion detection and prevention across npm, PyPI, RubyGems, Maven', verified: true },
+      {
+        name: 'nox/depconfusion',
+        version: '0.2.2',
+        summary: 'Dependency confusion detection across npm, PyPI, RubyGems and Maven (3 rules).',
+        verified: true,
+        status: 'current',
+      },
     ],
   },
   {
@@ -82,11 +187,33 @@ export const pluginTracks: PluginTrack[] = [
     offline: 'yes',
     readOnly: 'yes',
     characteristics: 'Org-specific, non-scanning, consumes findings',
-    description: 'Plugins that turn findings into enforceable policy and compliance decisions.',
+    description:
+      'Plugins that turn findings into enforceable policy and compliance decisions. Policy gating and baseline management moved into core, so the two plugins that provided them are deprecated.',
     plugins: [
-      { name: 'nox-plugin-baseline-mgmt', summary: 'Finding baseline snapshots, diff, and triage — brownfield migration enabler', verified: true },
-      { name: 'nox-plugin-policy-gate', summary: 'Policy evaluation and CI gate (pass/fail) — 5 rules', verified: true },
-      { name: 'nox-plugin-grc', summary: 'GRC compliance assessment across 12 frameworks (SOC2, ISO 27001, GDPR, FedRAMP L/M/H, HIPAA, PCI-DSS, NIST 800-53, NIST CSF, CIS v8, CMMC)', verified: true },
+      {
+        name: 'nox/grc',
+        version: '0.7.1',
+        summary:
+          'Governance, Risk & Compliance assessment across 10 frameworks with gap analysis and evidence collection.',
+        verified: true,
+        status: 'current',
+      },
+      {
+        name: 'nox/policy-gate',
+        version: '0.2.0',
+        summary: 'Policy evaluation and CI gate — severity thresholds, rule allowlists, finding budgets (5 rules).',
+        verified: true,
+        status: 'deprecated',
+        replacedBy: 'core policy thresholds in .nox.yaml',
+      },
+      {
+        name: 'nox/baseline-mgmt',
+        version: '0.2.0',
+        summary: 'Finding baseline snapshots, diff and triage — the brownfield migration enabler (4 rules).',
+        verified: true,
+        status: 'deprecated',
+        replacedBy: 'nox baseline',
+      },
     ],
   },
   {
@@ -100,8 +227,21 @@ export const pluginTracks: PluginTrack[] = [
     characteristics: 'Review-focused, early design phase',
     description: 'Design-time security analysis plugins for architecture and threat model quality.',
     plugins: [
-      { name: 'nox-plugin-threat-explain', summary: 'LLM-enhanced finding explanations and impact analysis (8 rules + LLM)', verified: true },
-      { name: 'nox-plugin-threat-model', summary: 'STRIDE-based auto-modeling with optional AI threat generation (5 rules + LLM)', verified: true },
+      {
+        name: 'nox/threat-model',
+        version: '0.2.2',
+        summary:
+          'STRIDE-based threat pattern detection in source code, with opt-in AI threat modeling via ai_model: true (5 rules + LLM).',
+        verified: true,
+        status: 'current',
+      },
+      {
+        name: 'nox/threat-explain',
+        version: '0.2.2',
+        summary: 'LLM-enhanced finding explanations and impact analysis with audience targeting (8 rules + LLM).',
+        verified: true,
+        status: 'current',
+      },
     ],
   },
   {
@@ -113,10 +253,22 @@ export const pluginTracks: PluginTrack[] = [
     offline: 'no',
     readOnly: 'yes',
     characteristics: 'Signals not exploits, defensive only',
-    description: 'Threat intelligence plugins that provide context, correlation, and early signal amplification.',
+    description: 'Threat intelligence plugins that provide context, correlation and early signal amplification.',
     plugins: [
-      { name: 'nox-plugin-risk-score', summary: 'EPSS / KEV vulnerability prioritization and severity scoring', verified: true },
-      { name: 'nox-plugin-threat-enrich', summary: 'CVE enrichment, CWE mapping, and MITRE ATT&CK correlation (13 rules)', verified: true },
+      {
+        name: 'nox/risk-score',
+        version: '0.2.2',
+        summary: 'EPSS / KEV vulnerability prioritization and severity scoring with environmental risk amplification (5 rules).',
+        verified: true,
+        status: 'current',
+      },
+      {
+        name: 'nox/threat-enrich',
+        version: '0.2.2',
+        summary: 'CVE enrichment, CWE mapping and MITRE ATT&CK correlation (13 rules).',
+        verified: true,
+        status: 'current',
+      },
     ],
   },
   {
@@ -128,20 +280,58 @@ export const pluginTracks: PluginTrack[] = [
     offline: 'no',
     readOnly: 'yes',
     characteristics: 'Read-only, never changes results',
-    description: 'AI-assisted explanation and remediation planning plugins for human and agent users.',
+    description: 'AI-assisted explanation and prioritization plugins for human and agent users.',
     plugins: [
-      { name: 'nox-plugin-triage-agent', summary: 'LLM-powered finding prioritization and false-positive reduction (4 rules + 7-provider LLM: openai, anthropic, gemini, ollama, cohere, bedrock, copilot)', verified: true },
+      {
+        name: 'nox/triage-agent',
+        version: '0.2.2',
+        summary:
+          'LLM-powered finding prioritization and false-positive reduction (4 rules + 7 providers: openai, anthropic, gemini, ollama, cohere, bedrock, copilot).',
+        verified: true,
+        status: 'current',
+      },
+    ],
+  },
+  {
+    id: 'remediation',
+    number: 8,
+    title: 'Remediation',
+    riskClass: 'active',
+    ciSafe: 'yes',
+    offline: 'yes',
+    readOnly: 'no',
+    characteristics: 'Writes to the workspace, opt-in only',
+    description:
+      'Deterministic remediation planning and application. Since 1.12.0 every post-scan plugin tool is subject to policy, so the tools here that rewrite source stay blocked until an operator sets plugin_policy.max_risk_class: active.',
+    plugins: [
+      {
+        name: 'nox/remediate',
+        version: '0.1.1',
+        summary:
+          'Deterministic remediation planning and application for code findings. Its apply_code and verify_code tools are declared non-read-only and are blocked under the default passive policy until explicitly opted in.',
+        verified: true,
+        status: 'current',
+      },
     ],
   },
 ];
 
-export const pluginTotalCount = pluginTracks.reduce((total, track) => total + track.plugins.length, 0);
+const allPlugins = pluginTracks.flatMap((track) => track.plugins);
 
-/** Cosign-keyless-signed plugins surfaced as the featured "Verified
- * marketplace" row on the homepage and at the top of /plugins. The
- * order is curated for marketing impact (security depth first, then
- * AI-specific differentiators). */
-export const verifiedPlugins: PluginEntry[] = pluginTracks
-  .flatMap((t) => t.plugins.map((p) => ({ ...p, _track: t.id })))
-  .filter((p) => p.verified)
-  .map(({ _track, ...rest }) => rest);
+/** Everything the official registry serves, including deprecated and retired entries. */
+export const pluginTotalCount = allPlugins.length;
+
+/** Plugins that should be adopted today — excludes deprecated and retired. */
+export const currentPlugins: PluginEntry[] = allPlugins.filter(
+  (p) => (p.status ?? 'current') === 'current',
+);
+
+export const currentPluginCount = currentPlugins.length;
+
+/**
+ * Cosign-keyless-signed plugins surfaced as the featured "Verified
+ * marketplace" row on the homepage and at the top of /plugins. Deprecated
+ * and retired plugins are signed too, but featuring them would recommend
+ * something the project no longer recommends.
+ */
+export const verifiedPlugins: PluginEntry[] = currentPlugins.filter((p) => p.verified);

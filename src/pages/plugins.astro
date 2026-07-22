@@ -1,9 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { pluginTracks, pluginTotalCount, verifiedPlugins } from '../data/plugins';
+import { pluginTracks, currentPluginCount, pluginTotalCount, verifiedPlugins } from '../data/plugins';
 
 const ciSafeCount = pluginTracks.filter((track) => track.ciSafe === 'yes').length;
 const trackCount = pluginTracks.length;
+const supersededCount = pluginTotalCount - currentPluginCount;
 ---
 
 <BaseLayout title="Nox — Plugin Marketplace" description="Cosign-signed plugin marketplace. Track-based architecture with explicit safety context for every plugin.">
@@ -12,23 +13,31 @@ const trackCount = pluginTracks.length;
       <p class="kicker">Plugin marketplace</p>
       <h1>Cosign-signed plugins, track-based safety guarantees.</h1>
       <p>
-        Nox ships {trackCount} tracks and {pluginTotalCount} plugins. Every plugin in the official registry carries a Sigstore keyless signature tied to its `release.yml` workflow OIDC subject. The default trust policy refuses install on unsigned drops; operators bypass with `--allow-unverified` or `plugins.trust_policy: permissive`.
+        The official registry serves {currentPluginCount} current plugins across {trackCount} tracks. Every one carries a Sigstore keyless signature tied to its `release.yml` workflow OIDC subject. The default trust policy refuses install on unsigned drops; operators bypass with `--allow-unverified` or `plugins.trust_policy: permissive`. Since 1.13.0 the trust policy is enforced on install, update and `.nox.yaml` auto-install alike, and a plugin binary is re-verified against its install-time digest before it runs.
+      </p>
+      <p class="registry-note">
+        The registry moved to its own repository,
+        <a href="https://github.com/nox-hq/registry" rel="noreferrer">Nox-HQ/registry</a>, in nox 1.10.0.
+        Existing installs migrate the source URL automatically.
       </p>
 
       <div class="summary reveal">
         <article>
-          <p>Verified in marketplace</p>
-          <strong class="metric-value">{verifiedPlugins.length}</strong>
+          <p>Current plugins</p>
+          <strong class="metric-value">{currentPluginCount}</strong>
         </article>
         <article>
-          <p>Total plugins</p>
-          <strong class="metric-value">{pluginTotalCount}</strong>
+          <p>Cosign verified</p>
+          <strong class="metric-value">{verifiedPlugins.length}/{currentPluginCount}</strong>
         </article>
         <article>
           <p>CI-safe tracks</p>
           <strong class="metric-value">{ciSafeCount}/{trackCount}</strong>
         </article>
       </div>
+      <p class="superseded-note">
+        {supersededCount} further entries stay in the index for existing installs but are no longer recommended — marked below.
+      </p>
     </section>
 
     <section class="section container">
@@ -40,11 +49,11 @@ const trackCount = pluginTracks.length;
         {verifiedPlugins.map((p) => (
           <article class="verified-card reveal">
             <div class="verified-top">
-              <code>nox/{p.name.replace(/^nox-plugin-/, '')}</code>
+              <code>{p.name}</code>
               <span class="verified-badge">✓ Verified</span>
             </div>
             <p>{p.summary}</p>
-            <pre class="verified-install"><code>nox plugin install nox/{p.name.replace(/^nox-plugin-/, '')}</code></pre>
+            <pre class="verified-install"><code>nox plugin install {p.name}</code></pre>
           </article>
         ))}
       </div>
@@ -69,12 +78,20 @@ const trackCount = pluginTracks.length;
 
           <ul class="plugins">
             {track.plugins.map((plugin) => (
-              <li>
+              <li data-status={plugin.status ?? 'current'}>
                 <div class="plugin-name">
                   <code>{plugin.name}</code>
-                  {plugin.verified && <span class="verified-badge inline">✓ Verified</span>}
+                  {plugin.version && <span class="plugin-version">v{plugin.version}</span>}
+                  {plugin.status === 'deprecated' && <span class="status-badge deprecated">Deprecated</span>}
+                  {plugin.status === 'retired' && <span class="status-badge retired">Retired</span>}
+                  {plugin.verified && (plugin.status ?? 'current') === 'current' && (
+                    <span class="verified-badge inline">✓ Verified</span>
+                  )}
                 </div>
-                <span>{plugin.summary}</span>
+                <span>
+                  {plugin.summary}
+                  {plugin.replacedBy && <em class="replaced-by"> Use {plugin.replacedBy} instead.</em>}
+                </span>
               </li>
             ))}
           </ul>
@@ -249,6 +266,7 @@ const trackCount = pluginTracks.length;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-wrap: wrap;
   }
 
   .plugins code {
@@ -259,6 +277,58 @@ const trackCount = pluginTracks.length;
   .plugins span {
     color: var(--muted);
     font-size: 0.88rem;
+  }
+
+  /* A superseded plugin stays listed for operators who already run it, but
+     should not read as an equal recommendation next to a current one. */
+  .plugins li[data-status='deprecated'],
+  .plugins li[data-status='retired'] {
+    opacity: 0.72;
+  }
+
+  .plugin-version {
+    color: var(--muted);
+    font-size: 0.74rem !important;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .status-badge {
+    border-radius: 999px;
+    padding: 0.14rem 0.45rem;
+    font-size: 0.68rem !important;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .status-badge.deprecated {
+    color: #febc2e;
+    border: 1px solid rgba(254, 188, 46, 0.4);
+    background: rgba(254, 188, 46, 0.1);
+  }
+
+  .status-badge.retired {
+    color: #ff6b6b;
+    border: 1px solid rgba(255, 107, 107, 0.4);
+    background: rgba(255, 107, 107, 0.1);
+  }
+
+  .replaced-by {
+    color: var(--text);
+    font-style: normal;
+  }
+
+  .registry-note,
+  .superseded-note {
+    font-size: 0.85rem;
+    max-width: 70ch;
+  }
+
+  .superseded-note {
+    margin-top: 0.7rem;
+  }
+
+  .registry-note a {
+    color: var(--cyan);
   }
 
   @media (max-width: 960px) {
