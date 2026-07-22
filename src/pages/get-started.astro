@@ -89,6 +89,7 @@ jobs:
           format: sarif
           annotate: 'true'          # inline PR comments
           severity-threshold: high
+          fail-on-degraded: 'true'  # a check that could not run fails the job
       - uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results.sarif</code></pre>

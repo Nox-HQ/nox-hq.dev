@@ -29,7 +29,7 @@ const features = [
       'An OSV outage, a dead plugin, an unparseable lockfile or a corrupt baseline used to exit 0 — indistinguishable from a clean pass',
       'Every incomplete check is recorded in findings.json under meta.degradations, with what failed and what may be missing',
       'Printed to stderr even under --quiet: quiet suppresses noise, not a warning that results are partial',
-      '--fail-on-degraded makes CI treat "could not check" as failure',
+      '--fail-on-degraded makes CI treat "could not check" as failure — exposed as fail-on-degraded on the GitHub Action since 1.14.0',
       'Silence is preserved where nothing is wrong — a missing baseline before the first write is not a degradation',
     ],
   },
