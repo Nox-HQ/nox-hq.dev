@@ -154,7 +154,13 @@ async function main() {
       '',
     ].join('\n');
 
-    await writeFile(join(outDir, `${release.version}.md`), frontmatter + release.body + '\n');
+    // The page renders the version itself as <h3>, so a release's own `###
+    // Fixed` would come out a sibling of the version it belongs to rather than
+    // nested under it. Shift one level; `sectionsOf` and `summaryOf` have
+    // already read the original.
+    const body = release.body.replace(/^### /gm, '#### ');
+
+    await writeFile(join(outDir, `${release.version}.md`), frontmatter + body + '\n');
   }
 
   const newest = releases[0];
