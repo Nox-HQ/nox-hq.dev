@@ -2,22 +2,22 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const capabilityMap = [
-  { semgrep: 'Pattern-based SAST', nox: 'core SEC-* + nox/sast', note: 'Both pattern + AST. Semgrep DSL more expressive; Nox covers more languages out of the box' },
+  { semgrep: 'Pattern-based SAST', nox: 'core taint engine across 21 languages', note: 'Semgrep DSL is more expressive; Nox computes dataflow rather than matching shapes' },
   { semgrep: 'Cross-file taint (interfile)', nox: 'core TAINT-001..007 (interprocedural) + AI taint', note: 'Free in Nox. Paid tier in Semgrep.' },
-  { semgrep: 'AI security rules', nox: '21 dedicated AI rules + MCP-001..008 + AI taint families', note: 'Semgrep relies on community AI rules; no MCP coverage' },
+  { semgrep: 'AI security rules', nox: '88 AI/MCP/agent rules + AGENTFLOW dataflow', note: 'Semgrep relies on community AI rules; no MCP coverage' },
   { semgrep: 'SCA / dependencies', nox: 'core VULN-* + nox/reachability (verified)', note: 'Semgrep Supply Chain is paid' },
-  { semgrep: 'IaC scanning', nox: '369 IAC rules across Terraform, K8s, Dockerfile, GHA, Ansible, Kustomize, Serverless', note: 'Semgrep has IaC rules but breadth is narrower' },
-  { semgrep: 'Secrets', nox: '160 SEC rules core', note: 'Semgrep secrets is paid' },
+  { semgrep: 'IaC scanning', nox: '500 IAC rules across Terraform, K8s, Dockerfile, GHA, Ansible, Kustomize, Serverless, Helm', note: 'Semgrep has IaC rules but breadth is narrower' },
+  { semgrep: 'Secrets', nox: '913 SEC rules core', note: 'Semgrep secrets is paid' },
   { semgrep: 'Custom rules', nox: 'YAML rule packs', note: 'Semgrep DSL is genuinely better for AST patterns. Nox uses RE2 + structural matchers.' },
-  { semgrep: 'CI gating', nox: 'nox/policy-gate (verified)', note: 'Both ship CI gates' },
-  { semgrep: 'Editor integration', nox: 'VSCode/JetBrains plugin in roadmap', note: 'Semgrep wins today' },
-  { semgrep: 'Cosign-signed extensions', nox: '19 verified plugins, all Sigstore keyless', note: 'No equivalent in Semgrep' },
+  { semgrep: 'CI gating', nox: '.nox.yaml policy thresholds + --fail-on-degraded', note: 'Both ship CI gates; only Nox fails on checks that could not run' },
+  { semgrep: 'Editor integration', nox: 'nox lsp + VS Code and JetBrains extensions', note: 'Shipped — deterministic and offline' },
+  { semgrep: 'Cosign-signed extensions', nox: '18 verified plugins, all Sigstore keyless', note: 'No equivalent in Semgrep' },
   { semgrep: 'Pricing', nox: '$0 forever, Apache 2.0', note: 'Semgrep paid for serious use ($40-100/dev/mo)' },
 ];
 
 const wins = [
   { title: 'AI security depth', body: 'Prompt injection at the call site (LLM01), embedding leakage (LLM06), agent over-privilege (LLM07), MCP server hardening (MCP-001..008). Semgrep relies on community AI rules with no cohesive family.' },
-  { title: 'Cross-file taint is free', body: 'Semgrep gates interfile analysis behind the Pro tier. Nox\'s TAINT-006/007 + TAINT-AI-001/002 ship in core, including AI-specific source-to-sink (request.json → service hop → chat.completions.create).' },
+  { title: 'Cross-file taint is free', body: 'Semgrep gates interfile analysis behind the Pro tier. Nox\'s TAINT-001..007 ship in core across 21 languages, with function summaries propagating taint through helper calls and the call path named in the finding — plus AI-specific source-to-sink (request.json → service hop → chat.completions.create).' },
   { title: 'Cosign-signed plugin marketplace', body: 'Every plugin in the official registry verified via Sigstore keyless OIDC. Semgrep rules are uploaded files with no supply-chain integrity story.' },
   { title: 'Single binary covers SAST + SCA + IaC + AI + secrets', body: 'One pass, deterministic, offline. Semgrep\'s coverage requires multiple paid tiers stitched together.' },
   { title: 'AIBOM v2.0', body: 'Polyglot AI component inventory naming every model invocation, auth env var, and endpoint. Audit-ready. Semgrep has nothing equivalent.' },
@@ -25,7 +25,7 @@ const wins = [
 
 const losses = [
   { title: 'Rule authoring DX', body: 'Semgrep DSL beats RE2-based pattern matching for complex AST queries. If you author dozens of custom rules, Semgrep wins.' },
-  { title: 'Community rule volume', body: 'Semgrep ships thousands of community rules across niche languages. Nox\'s ruleset is curated and smaller (717).' },
+  { title: 'Community rule volume', body: 'Semgrep ships thousands of community rules across niche languages, and a marketplace of third-party rule packs. Nox\'s 1,528 rules are curated in-tree, which keeps them testable and deterministic but means no community long tail.' },
   { title: 'Type-aware analysis', body: 'Semgrep Pro has type-aware analysis for Java/JavaScript/Python that catches edge cases pattern matching misses.' },
 ];
 

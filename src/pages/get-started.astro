@@ -29,7 +29,11 @@ const mcpConfig = `# claude_desktop_config.json (or your MCP host)
           <div class="install-methods">
             <div class="install-method">
               <p class="method-label">Homebrew</p>
-              <pre><code>brew install nox</code></pre>
+              <pre><code>brew install felixgeelhaar/tap/nox</code></pre>
+              <p class="method-note">
+                Tap-qualified on purpose: a bare <code>brew install nox</code> resolves to
+                an unrelated package in homebrew-core.
+              </p>
             </div>
             <div class="install-method">
               <p class="method-label">Go</p>
@@ -57,6 +61,13 @@ cd nox && go build -o nox ./cli</code></pre>
           <pre class="output"><code><span class="t-dim">nox — scanning .</span>
 <span class="t-cyan">[results]</span> 12 findings, 47 dependencies, 3 AI components
 <span class="t-green">[done]</span> wrote findings.json</code></pre>
+          <p class="step-note">
+            If a check could not complete — OSV unreachable, a required plugin missing, a
+            lockfile nox cannot parse — it is reported as a <code>[degraded]</code> line on
+            stderr and recorded in <code>findings.json</code> under <code>meta.degradations</code>,
+            rather than passing as a clean scan. Add <code>--fail-on-degraded</code> to make
+            CI treat that as failure.
+          </p>
         </div>
       </article>
 
@@ -72,14 +83,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: nox-hq/nox@v1.5.0
+      - uses: nox-hq/nox@v1
         with:
           path: '.'
           format: sarif
-          annotate: 'true'   # inline PR comments
+          annotate: 'true'          # inline PR comments
+          severity-threshold: high
       - uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results.sarif</code></pre>
+          <p class="step-note">
+            SARIF carries <code>security-severity</code>, so Code Scanning can sort, filter
+            and write alert rules against Nox findings rather than treating every alert alike.
+          </p>
         </div>
       </article>
 
@@ -114,9 +130,9 @@ jobs:
         <span class="step-num">04</span>
         <div>
           <h2>Dashboard</h2>
-          <p class="step-desc">Generate a standalone HTML report for visual inspection and team review.</p>
-          <pre><code>nox scan . --format html --output report.html
-nox dashboard .</code></pre>
+          <p class="step-desc">Generate a standalone HTML report for visual inspection and team review. It is written from an existing <code>findings.json</code>, and honors <code>SOURCE_DATE_EPOCH</code> so the output is reproducible.</p>
+          <pre><code>nox dashboard .                              # opens in your browser
+nox dashboard . --no-browser --output report.html</code></pre>
         </div>
       </article>
 
@@ -155,7 +171,7 @@ plugins:
     - nox/reachability        # filter VULN by import reachability
     - nox/taint-analysis      # cross-file + AI taint flow
     - nox/k8s-runtime         # live cluster scanning
-    - nox/grc                 # 15 compliance frameworks (incl. EU AI Act, ISO 42001, NIST AI RMF)
+    - nox/grc                 # 10 compliance frameworks
   trust_policy: default       # require Cosign keyless or Ed25519
 
 # First scan auto-installs missing required plugins.
@@ -175,9 +191,14 @@ nox scan .                   # auto-installs if missing</code></pre>
   --certificate-identity-regexp \
     "https://github.com/nox-hq/nox-plugin-reachability/.github/workflows/release.yml@.*" \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  --bundle checksums.txt.sig.bundle \
+  --bundle checksums.txt.sigstore.json \
   --new-bundle-format \
   checksums.txt</code></pre>
+          <p class="step-note">
+            Plugin releases sign with cosign v4, which writes a single
+            <code>checksums.txt.sigstore.json</code> bundle and no detached
+            <code>.sig</code>.
+          </p>
         </div>
       </article>
 
@@ -247,6 +268,19 @@ nox scan .                   # auto-installs if missing</code></pre>
     font-size: 0.86rem;
   }
 
+  .step-note {
+    margin: 0.6rem 0 0;
+    max-width: 66ch;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  .step-note code {
+    color: var(--code-accent);
+    font-size: 0.85em;
+  }
+
   .install-methods {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -265,6 +299,18 @@ nox scan .                   # auto-installs if missing</code></pre>
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--text);
+  }
+
+  .method-note {
+    margin: 0.45rem 0 0;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  .method-note code {
+    color: var(--code-accent);
+    font-size: 0.85em;
   }
 
   .install-method pre {

@@ -13,8 +13,30 @@ Marketing and landing site for [NOX](https://github.com/Nox-HQ/nox), built with 
 
 - `/` - Landing page
 - `/features` - Feature matrix and core command surface
-- `/plugins` - Complete plugin catalog (10 tracks, 37 plugins)
+- `/plugins` - Plugin catalog (8 tracks), mirroring the official registry
+- `/changelog` - Release notes, generated from nox's own `CHANGELOG.md`
 - `/get-started` - Install and quick-start flow
+- `/enterprise`, `/security`, `/compare/*`, `/blog`
+
+## Keeping content true
+
+Most of this site states numbers about the scanner — rule counts, plugin
+versions, MCP tool counts, CLI flags. None are derived at build time, so they
+go stale silently: the site sat on nox 1.6 facts until 1.13.6 shipped. When a
+release lands:
+
+1. `npm run sync:changelog` — regenerates `src/content/changelog/` from
+   `../nox/CHANGELOG.md` (or `NOX_CHANGELOG=remote` to fetch from GitHub).
+   Commit the result.
+2. Re-check the hard numbers against the tool, not against memory:
+   - rules — the `rules` MCP tool against a `nox serve` process
+   - plugins — `curl https://raw.githubusercontent.com/nox-hq/registry/main/index.json`
+   - CLI surface — `nox --help`, `nox scan --help`, `nox fix --help`
+   - Action inputs — `action.yml` in the nox repo
+3. Update `src/data/plugins.ts` and any page copy quoting a count.
+
+Install commands must stay tap-qualified (`brew install felixgeelhaar/tap/nox`);
+a bare `brew install nox` resolves to an unrelated homebrew-core package.
 
 ## Development
 

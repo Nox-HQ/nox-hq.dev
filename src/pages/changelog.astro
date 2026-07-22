@@ -1,0 +1,614 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const compare = (a: string, b: string) => {
+  const pa = a.split('.').map(Number);
+  const pb = b.split('.').map(Number);
+  for (let i = 0; i < 3; i += 1) if (pa[i] !== pb[i]) return pb[i] - pa[i];
+  return 0;
+};
+
+const entries = (await getCollection('changelog')).sort((a, b) =>
+  compare(a.data.version, b.data.version),
+);
+
+// Markdown bodies have to be rendered in the frontmatter; the template can
+// only place the resulting components.
+const releases = await Promise.all(
+  entries.map(async (entry) => ({
+    ...entry.data,
+    Content: (await entry.render()).Content,
+  })),
+);
+
+const latest = releases[0];
+
+/** Newest-first series (`1.13`, `1.12`, …), each with its releases. */
+const series = releases.reduce<{ id: string; releases: typeof releases }[]>((acc, release) => {
+  const group = acc.find((g) => g.id === release.series);
+  if (group) group.releases.push(release);
+  else acc.push({ id: release.series, releases: [release] });
+  return acc;
+}, []);
+
+const fmt = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' });
+const fmtShort = new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' });
+
+const seriesRange = (group: (typeof series)[number]) => {
+  const dates = group.releases.map((r) => r.date.getTime());
+  const from = fmtShort.format(new Date(Math.min(...dates)));
+  const to = fmtShort.format(new Date(Math.max(...dates)));
+  return from === to ? from : `${from} – ${to}`;
+};
+
+/**
+ * Section headings carry meaning worth colouring: a release that fixes a
+ * security defect should not look like one that bumps a dependency.
+ */
+const badgeTone = (section: string) => {
+  const key = section.toLowerCase();
+  if (key.includes('breaking')) return 'breaking';
+  if (key.includes('security')) return 'security';
+  if (key.includes('added')) return 'added';
+  if (key.includes('removed')) return 'removed';
+  if (key.includes('fixed')) return 'fixed';
+  return 'changed';
+};
+
+/**
+ * Curated read of everything since 1.6 — the version this site described until
+ * now. The generated notes below are complete but chronological; these are the
+ * changes that alter whether Nox is the right tool for a given repository.
+ */
+const highlights = [
+  {
+    title: 'A 21-language taint engine',
+    since: '1.7.0',
+    color: 'var(--cyan)',
+    body: 'SAST went from a three-language proof of concept to deterministic dataflow across 21 languages — SQL injection, command injection, XSS, path traversal, unsafe deserialization, SSRF — with interprocedural taint inside a file. Measured precision rose from 0.30 to 1.00 on a labeled corpus, by fixing false-positive classes in the engine rather than by curating the corpus. No tree-sitter, no CGo, still one static binary.',
+  },
+  {
+    title: 'Scans report what they could not check',
+    since: '1.11.0',
+    color: 'var(--magenta)',
+    body: 'Graceful degradation is only safe if it is visible. An OSV outage, a dead plugin, an unparseable lockfile or a corrupt baseline used to produce a clean exit 0 — indistinguishable from a real pass. Every incomplete check is now recorded in findings.json under meta.degradations, printed to stderr even under --quiet, and --fail-on-degraded makes CI treat "could not check" as failure.',
+  },
+  {
+    title: 'Dependency scanning rebuilt',
+    since: '1.10.0 – 1.12.0',
+    color: 'var(--violet)',
+    body: 'Go versions now come from go.mod — what Minimal Version Selection actually chose — not from go.sum, which hashes every version the resolver ever considered. Advisories are matched per package rather than per module, and real CVSS v3 base scores are computed from OSV vector strings, so a critical dependency CVE can finally trip a critical gate. yarn, pnpm and poetry lockfiles are parsed. One repository went from 376 findings to 19 with every in-build module retained.',
+  },
+  {
+    title: 'The plugin trust boundary, hardened',
+    since: '1.11.0 – 1.13.0',
+    color: 'var(--blue)',
+    body: 'Two adversarial audits drove it: the plugin↔host gRPC channel is authenticated per launch and bound to loopback, plugin binaries are re-verified against an install-time digest before they run, fingerprints are derived host-side so a plugin cannot suppress another plugin\'s findings, and the trust policy is enforced on install, update and .nox.yaml auto-install alike. Archive extraction is bounded against decompression bombs.',
+  },
+  {
+    title: 'Secret detection that stays quiet',
+    since: '1.12.1 – 1.12.2',
+    color: 'var(--cyan)',
+    body: '129 vendor rules whose pattern was only a character class and a length fired on ordinary code — comments, identifiers, JSON values — because a single mention of a vendor anywhere in a file armed them. They now require the keyword near the match and credential-grade entropy and shape. On nox\'s own source, SEC-* findings at high severity dropped from 45 to 12 with no loss of recall.',
+  },
+  {
+    title: 'Alerts GitHub can actually sort',
+    since: '1.13.4',
+    color: 'var(--violet)',
+    body: 'SARIF rule descriptors now carry security-severity, so Code Scanning can classify, filter and write alert rules against Nox findings. Info is deliberately unscored rather than sent as 0, which GitHub renders as "low" and would overstate it.',
+  },
+];
+
+const install = `brew upgrade felixgeelhaar/tap/nox
+nox version   # ${latest.version}`;
+---
+
+<BaseLayout
+  title="Nox — Changelog"
+  description={`Release notes for Nox, currently ${latest.version}. Every change to the scanner, the rule set, the plugin trust model and the output formats, taken from the project's own CHANGELOG.`}
+>
+  <main>
+    <section class="section container intro">
+      <p class="kicker">Changelog</p>
+      <h1>What's new in Nox.</h1>
+      <p class="lede">
+        Every release, taken verbatim from the project's own <code>CHANGELOG.md</code> —
+        including the ones that explain what was previously wrong. Nox is a security
+        tool; a defect in it is a defect in your coverage, so the notes name what
+        broke and what it meant rather than saying "various fixes".
+      </p>
+
+      <div class="latest-row">
+        <div class="latest-chip">
+          <span class="dot" aria-hidden="true"></span>
+          <span>Latest</span>
+          <strong>v{latest.version}</strong>
+          <span class="latest-date">{fmt.format(latest.date)}</span>
+        </div>
+        <a class="btn ghost" href="https://github.com/Nox-HQ/nox/releases" rel="noreferrer">
+          Signed release artifacts →
+        </a>
+      </div>
+
+      <pre><code>{install}</code></pre>
+    </section>
+
+    <section class="section container">
+      <div class="hl-header">
+        <p class="kicker">Since 1.6</p>
+        <h2>The changes worth an upgrade.</h2>
+        <p>
+          The full history is below and it is long. These are the six changes that
+          alter what Nox catches, or what it will now tell you it missed.
+        </p>
+      </div>
+      <div class="hl-grid">
+        {highlights.map((h, i) => (
+          <article class={`hl-card reveal ${i % 3 === 1 ? 'd2' : i % 3 === 2 ? 'd3' : ''}`}>
+            <p class="hl-since" style={`color: ${h.color}`}>{h.since}</p>
+            <h3>{h.title}</h3>
+            <p>{h.body}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="section container">
+      <div class="history-header">
+        <p class="kicker">Release history</p>
+        <h2>{releases.length} releases on the 1.x line</h2>
+        <p>
+          Grouped by minor series, newest first. Earlier series are collapsed —
+          open one to read its notes in full.
+        </p>
+        <nav class="jump" aria-label="Jump to release">
+          {releases.map((r) => (
+            <a href={`#v${r.version}`}>{r.version}</a>
+          ))}
+        </nav>
+      </div>
+
+      {series.map((group, index) => (
+        <details class="series" open={index === 0}>
+          <summary>
+            <div class="series-title">
+              <strong>{group.id}.x</strong>
+              <span>
+                {group.releases.length} release{group.releases.length === 1 ? '' : 's'} · {seriesRange(group)}
+              </span>
+            </div>
+            <span class="series-hint" aria-hidden="true"></span>
+          </summary>
+
+          <div class="series-body">
+            {group.releases.map((release) => (
+              <article class="release" id={`v${release.version}`}>
+                <header class="release-head">
+                  <div class="release-id">
+                    <h3>
+                      <a href={`https://github.com/Nox-HQ/nox/releases/tag/v${release.version}`} rel="noreferrer">
+                        v{release.version}
+                      </a>
+                    </h3>
+                    <time datetime={release.date.toISOString()}>{fmt.format(release.date)}</time>
+                  </div>
+                  <ul class="badges">
+                    {release.sections.map((s) => (
+                      <li data-tone={badgeTone(s)}>{s}</li>
+                    ))}
+                  </ul>
+                </header>
+                <div class="release-body">
+                  <release.Content />
+                </div>
+              </article>
+            ))}
+          </div>
+        </details>
+      ))}
+
+      <p class="pre-1x">
+        Releases before 1.4 predate the stable finding schema and the signed
+        marketplace. Their notes are on
+        <a href="https://github.com/Nox-HQ/nox/releases" rel="noreferrer">GitHub Releases</a>.
+      </p>
+    </section>
+
+    <section class="section container cta-section">
+      <div class="cta-box reveal">
+        <h2>Get notified when a release ships</h2>
+        <p>
+          Roughly one email a month — new rule families, marketplace plugin releases,
+          and the changes worth acting on.
+        </p>
+        <div class="cta-actions">
+          <a class="btn solid" href="/get-started">Get Started</a>
+          <a class="btn ghost" href="https://github.com/Nox-HQ/nox/releases.atom" rel="noreferrer">Release RSS</a>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .intro p.lede {
+    max-width: 68ch;
+  }
+
+  .intro code {
+    color: var(--code-accent);
+  }
+
+  .latest-row {
+    margin: 1.1rem 0 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+  }
+
+  .latest-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    padding: 0.4rem 0.85rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .latest-chip strong {
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .latest-date {
+    padding-left: 0.45rem;
+    border-left: 1px solid var(--line);
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #28c840;
+    box-shadow: 0 0 0 3px rgba(40, 200, 64, 0.16);
+  }
+
+  .intro pre {
+    max-width: 32rem;
+  }
+
+  /* Highlights */
+  .hl-header {
+    margin-bottom: 1.2rem;
+  }
+
+  .hl-header p:last-of-type {
+    max-width: 62ch;
+  }
+
+  .hl-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .hl-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: linear-gradient(165deg, var(--surface), var(--surface-soft));
+    padding: 1rem;
+  }
+
+  .hl-since {
+    margin: 0 0 0.3rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .hl-card h3 {
+    font-size: 1.06rem;
+    margin: 0 0 0.45rem;
+  }
+
+  .hl-card p:last-child {
+    margin: 0;
+    font-size: 0.87rem;
+    line-height: 1.55;
+  }
+
+  /* History */
+  .history-header {
+    margin-bottom: 1.1rem;
+  }
+
+  .history-header p:last-of-type {
+    max-width: 62ch;
+  }
+
+  .jump {
+    margin-top: 0.9rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+
+  .jump a {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 0.76rem;
+    font-variant-numeric: tabular-nums;
+    padding: 0.22rem 0.55rem;
+    text-decoration: none;
+    transition: color 150ms ease, border-color 150ms ease;
+  }
+
+  .jump a:hover {
+    color: var(--text);
+    border-color: var(--cyan);
+  }
+
+  .series {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .series > summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .series > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .series-title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  .series-title strong {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.15rem;
+  }
+
+  .series-title span {
+    color: var(--muted);
+    font-size: 0.83rem;
+  }
+
+  .series-hint {
+    flex-shrink: 0;
+    width: 9px;
+    height: 9px;
+    border-right: 2px solid var(--muted);
+    border-bottom: 2px solid var(--muted);
+    transform: rotate(45deg);
+    transition: transform 180ms ease;
+  }
+
+  .series[open] > summary .series-hint {
+    transform: rotate(-135deg);
+  }
+
+  .series-body {
+    margin-top: 0.9rem;
+    border-top: 1px solid var(--line);
+    padding-top: 0.4rem;
+  }
+
+  .release {
+    padding: 1.1rem 0;
+    scroll-margin-top: 110px;
+  }
+
+  .release + .release {
+    border-top: 1px solid var(--line);
+  }
+
+  .release-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.6rem;
+  }
+
+  .release-id {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+  }
+
+  .release-id h3 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  .release-id h3 a {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .release-id h3 a:hover {
+    color: var(--cyan);
+  }
+
+  .release-id time {
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .badges li {
+    border-radius: 999px;
+    padding: 0.16rem 0.5rem;
+    font-size: 0.71rem;
+    font-weight: 600;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    background: var(--surface-soft);
+    white-space: nowrap;
+  }
+
+  .badges li[data-tone='breaking'] {
+    color: #ff6b6b;
+    border-color: rgba(255, 107, 107, 0.4);
+    background: rgba(255, 107, 107, 0.1);
+  }
+
+  .badges li[data-tone='security'] {
+    color: #febc2e;
+    border-color: rgba(254, 188, 46, 0.4);
+    background: rgba(254, 188, 46, 0.1);
+  }
+
+  .badges li[data-tone='added'] {
+    color: #28c840;
+    border-color: rgba(40, 200, 64, 0.35);
+    background: rgba(40, 200, 64, 0.1);
+  }
+
+  .badges li[data-tone='fixed'] {
+    color: #39c8f4;
+    border-color: rgba(57, 200, 244, 0.35);
+    background: rgba(57, 200, 244, 0.1);
+  }
+
+  .badges li[data-tone='removed'] {
+    color: #b98bff;
+    border-color: rgba(185, 139, 255, 0.35);
+    background: rgba(185, 139, 255, 0.1);
+  }
+
+  /* Rendered release notes */
+  .release-body {
+    max-width: 78ch;
+  }
+
+  .release-body :global(h3) {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text);
+    margin: 1.1rem 0 0.5rem;
+  }
+
+  .release-body :global(h3:first-child) {
+    margin-top: 0.2rem;
+  }
+
+  .release-body :global(p),
+  .release-body :global(li) {
+    font-size: 0.89rem;
+    line-height: 1.62;
+    color: var(--muted);
+  }
+
+  .release-body :global(ul) {
+    padding-left: 1.05rem;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .release-body :global(strong) {
+    color: var(--text);
+  }
+
+  .release-body :global(code) {
+    font-size: 0.85em;
+    color: var(--code-accent);
+  }
+
+  .release-body :global(pre) {
+    font-size: 0.8rem;
+    margin: 0.6rem 0;
+  }
+
+  .release-body :global(blockquote) {
+    margin: 0.8rem 0;
+    padding: 0.6rem 0.9rem;
+    border-left: 3px solid #febc2e;
+    background: rgba(254, 188, 46, 0.07);
+    border-radius: 0 8px 8px 0;
+  }
+
+  .release-body :global(blockquote p) {
+    margin: 0;
+  }
+
+  .release-body :global(a) {
+    color: var(--cyan);
+  }
+
+  .pre-1x {
+    margin-top: 1.2rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .pre-1x a {
+    color: var(--cyan);
+  }
+
+  /* CTA */
+  .cta-section {
+    border-top: 0;
+  }
+
+  .cta-box {
+    text-align: center;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: linear-gradient(165deg, var(--surface), var(--surface-soft));
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  .cta-box h2 {
+    margin-bottom: 0.4rem;
+  }
+
+  .cta-box p {
+    max-width: 52ch;
+    margin: 0 auto 1rem;
+  }
+
+  .cta-actions {
+    display: flex;
+    gap: 0.65rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 960px) {
+    .hl-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
