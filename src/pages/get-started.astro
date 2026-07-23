@@ -227,7 +227,12 @@ nox scan .                   # auto-installs if missing</code></pre>
 
   .step {
     display: grid;
-    grid-template-columns: 72px 1fr;
+    /* minmax(0, …) rather than a bare 1fr: a grid track's automatic minimum
+       is its content's min-content size, and these steps contain <pre> blocks
+       with `white-space: pre`, whose min-content is the longest unbreakable
+       line. A bare 1fr let the widest command inflate the track past the
+       viewport — at 760px the page laid out 1082px wide. */
+    grid-template-columns: 72px minmax(0, 1fr);
     gap: 0.9rem;
     align-items: start;
     padding-top: 0.4rem;
@@ -338,13 +343,13 @@ nox scan .                   # auto-installs if missing</code></pre>
 
   @media (max-width: 960px) {
     .install-methods {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 
   @media (max-width: 720px) {
     .step {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 </style>
