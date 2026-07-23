@@ -278,6 +278,12 @@ nox version   # ${latest.version}`;
     box-shadow: 0 0 0 3px rgba(40, 200, 64, 0.16);
   }
 
+  /* The cap has to apply to the injected .code-block wrapper as well as the
+     <pre> it wraps. The copy button is positioned against the wrapper, so a
+     full-width wrapper around a 32rem block leaves the button stranded far
+     to the right of the code. `:global` because the wrapper is created at
+     runtime and never carries Astro's scoping attribute. */
+  .intro :global(.code-block),
   .intro pre {
     max-width: 32rem;
   }
