@@ -224,7 +224,19 @@ const structuredData = jsonLd ?? {
                 btn.querySelector('span').textContent = 'Error';
               }
             });
-            pre.appendChild(btn);
+
+            // Anchor the button to a wrapper rather than to the <pre>. The
+            // <pre> is an `overflow-x: auto` scroll container, so an absolutely
+            // positioned child resolves `right` against the scrollable content
+            // rather than the visible box: on a short block the button landed
+            // in the middle of the code, on top of the text it was meant to
+            // sit beside. The wrapper does not scroll, so the button stays in
+            // the corner and stays put while the code scrolls under it.
+            const wrap = document.createElement('div');
+            wrap.className = 'code-block';
+            pre.parentNode.insertBefore(wrap, pre);
+            wrap.appendChild(pre);
+            wrap.appendChild(btn);
           });
         };
         if (document.readyState === 'loading') {
@@ -625,44 +637,10 @@ const structuredData = jsonLd ?? {
     color: var(--muted);
   }
 
-  /* Copy-to-clipboard buttons injected by post-render script */
-  .copy-button {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.3rem 0.55rem;
-    border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(0, 0, 0, 0.3);
-    color: #b9c8ee;
-    font-size: 0.72rem;
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 150ms ease, background-color 150ms ease;
-  }
-
-  pre:hover .copy-button,
-  .copy-button:focus {
-    opacity: 1;
-  }
-
-  .copy-button:hover {
-    background: rgba(0, 0, 0, 0.5);
-    color: #fff;
-  }
-
-  .copy-button[data-copied="true"] {
-    color: #28c840;
-    border-color: rgba(40, 200, 64, 0.4);
-  }
-
-  pre {
-    position: relative;
-  }
+  /* The copy button and its wrapper are styled in global.css, not here.
+     Astro scopes a component's styles with a data attribute, and both
+     elements are created at runtime by the script above, so they never
+     carry it — scoped rules silently do not match them. */
 
   @media (max-width: 960px) {
     .footer-inner {

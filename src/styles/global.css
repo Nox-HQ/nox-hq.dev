@@ -197,7 +197,11 @@ pre {
   border-radius: 14px;
   background: #0b1739;
   color: #edf4ff;
-  padding: 0.95rem 1rem;
+  /* The right padding reserves room for the copy button, which is injected
+     at runtime and absolutely positioned top-right. Without it the button
+     sits on top of the code on any block whose lines reach that far — on
+     /changelog it covered the version in `nox version   # 1.14.0`. */
+  padding: 0.95rem 5rem 0.95rem 1rem;
   overflow-x: auto;
 }
 
@@ -360,4 +364,58 @@ html[data-theme='dark'] .btn.ghost {
 html[data-theme='dark'] pre {
   border-color: #304777;
   background: #09132f;
+}
+
+/* Copy-to-clipboard buttons, injected at runtime by the script in
+   BaseLayout. They live here rather than in that component's <style>
+   block because Astro scopes component styles with a data attribute and
+   runtime-created elements never carry it — the scoped rules matched
+   nothing, so the button fell out of position entirely.
+
+   The button anchors to .code-block, a wrapper the script inserts around
+   each <pre>, and not to the <pre> itself: <pre> is an `overflow-x: auto`
+   scroll container, so an absolutely positioned child resolves `right`
+   against the scrollable content instead of the visible box and lands in
+   the middle of short code blocks. */
+.code-block {
+  position: relative;
+}
+
+.copy-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  /* Opaque, not translucent. `pre` scrolls horizontally, so on a long line
+     the code runs underneath the button and a see-through background left
+     the two overlapping and unreadable. The right padding on `pre` keeps
+     short lines clear of it; this handles the ones that scroll. */
+  background: #16224a;
+  box-shadow: 0 2px 8px rgba(3, 6, 18, 0.45);
+  color: #b9c8ee;
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 150ms ease, background-color 150ms ease;
+}
+
+.code-block:hover .copy-button,
+.copy-button:focus {
+  opacity: 1;
+}
+
+.copy-button:hover {
+  background: #22346b;
+  color: #fff;
+}
+
+.copy-button[data-copied='true'] {
+  color: #28c840;
+  border-color: rgba(40, 200, 64, 0.4);
 }
