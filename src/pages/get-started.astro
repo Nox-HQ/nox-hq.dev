@@ -41,15 +41,7 @@ const mcpConfig = `# claude_desktop_config.json (or your MCP host)
             </div>
             <div class="install-method">
               <p class="method-label">Docker</p>
-              <pre><code>docker login ghcr.io
-docker run --rm -v $(pwd):/workspace ghcr.io/nox-hq/nox scan /workspace</code></pre>
-              <p class="method-note">
-                The image is published to a private package, so the pull needs a
-                GitHub token with <code>read:packages</code>. The binaries in it are
-                the same signed artifacts on the
-                <a href="https://github.com/Nox-HQ/nox/releases" rel="noreferrer">releases page</a>,
-                which need no authentication.
-              </p>
+              <pre><code>docker run --rm -v $(pwd):/workspace ghcr.io/nox-hq/nox scan /workspace</code></pre>
             </div>
             <div class="install-method">
               <p class="method-label">Build from source</p>
@@ -320,10 +312,6 @@ nox scan .                   # auto-installs if missing</code></pre>
   .method-note code {
     color: var(--code-accent);
     font-size: 0.85em;
-  }
-
-  .method-note a {
-    color: var(--cyan);
   }
 
   .install-method pre {
