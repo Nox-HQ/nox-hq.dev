@@ -211,13 +211,13 @@ $ nox scan .</code></pre>
       </div>
     </section>
 
-    <!-- Site tour video -->
+    <!-- Scan demo video -->
     <section class="section container">
       <div class="video-section">
         <div class="video-copy">
-          <p class="kicker">90-second tour</p>
+          <p class="kicker">One scan, start to clean</p>
           <h2>See what Nox catches.</h2>
-          <p>A short walkthrough of the marketplace, the comparison pages, and the trust model. No audio — keep your headphones on whatever you were already listening to.</p>
+          <p>A vulnerable LLM endpoint — prompt injection, tainted input reaching the model, a hardcoded key. <code>nox scan .</code> finds all six; the fix moves the key to the environment and keeps user text out of the system prompt; the rescan comes back clean. No audio — keep your headphones on whatever you were already listening to.</p>
         </div>
         <div class="video-frame reveal">
           <video
@@ -227,11 +227,11 @@ $ nox scan .</code></pre>
             playsinline
             controls
             preload="auto"
-            poster="/demo/site-tour-poster.jpg"
-            aria-label="Nox site tour: home, plugin marketplace, vs Snyk comparison, enterprise, blog"
+            poster="/demo/nox-scan-poster.jpg"
+            aria-label="Terminal: nox scan finds six findings in a vulnerable LLM app — prompt injection, AI taint, and a hardcoded key — then a clean rescan after the fix"
           >
-            <source src="/demo/site-tour.webm" type="video/webm" />
-            <source src="/demo/site-tour.mp4" type="video/mp4" />
+            <source src="/demo/nox-scan.webm" type="video/webm" />
+            <source src="/demo/nox-scan.mp4" type="video/mp4" />
           </video>
         </div>
       </div>
