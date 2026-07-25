@@ -43,6 +43,7 @@ const features = [
       'OWASP Top 10 for Agentic Applications (ASI01–ASI10) mapping on findings',
       'Cross-file AI taint — request.json → service hop → chat.completions.create',
       'Role-aware prompt injection — untrusted input in the system role fires (TAINT-AI-001 / AGENTFLOW-001); the same input in the user role behind a static system prompt does not. Reaching an LLM is necessary but not sufficient',
+      'Static→dynamic confirmation (nox confirm) — an opt-in, active loop that fires an adversarial corpus at a running target and marks each AI finding CONFIRMED or UNCONFIRMED, separating a true positive from a false positive static analysis alone cannot. Reflection-immune: a bare echo of the payload can never false-confirm. Refuses without --authorize; never part of nox scan',
       'MCP server hardening misconfigs (MCP-001..008)',
       'Polyglot AIBOM v2.0 — every model invocation, auth env, and endpoint',
     ],
@@ -61,7 +62,7 @@ const features = [
     title: 'Supply-chain integrity (deterministic, offline)',
     items: [
       'Slopsquatting / hallucinated-package detection (SLOP-001) — imports of a package in no manifest, no standard library, no local module (Python + JS/TS)',
-      'Predictive slopsquatting (SLOP-002) — a signed, versioned feed of high-risk names an LLM is likely to hallucinate that are currently unregistered, so an attacker could claim them. Off by default; digest-verified and fails closed. Learning stays central and signed, enforcement stays local and deterministic',
+      'Predictive slopsquatting (SLOP-002) — a signed, versioned feed of high-risk names an LLM is likely to hallucinate that are currently unregistered, so an attacker could claim them. Bundled or fetched from a remote HTTPS URL, verified against a SHA-256 digest and an Ed25519 signature pinned to an operator key — a tampered, wrong-identity, or unsigned feed is rejected, not trusted. Off by default and fails closed; a scheduled pipeline regenerates and signs it. Learning stays central and signed, enforcement stays local and deterministic',
       'CVE-variant detection (nox variants, VARIANT-*) — first-party code reproducing Log4Shell, Zip Slip, PyYAML full-loader, tar traversal, SSTI, or shell interpolation',
       'Dependency provenance (PROV-001/002, ASI04 / SLSA) — non-registry (VCS/URL/tarball) sources and mutable-ref pins instead of immutable commit SHAs',
       'SCA across 7 ecosystems and 13 lockfile formats via OSV.dev — including yarn, pnpm and poetry — enriching CycloneDX / SPDX SBOM',
