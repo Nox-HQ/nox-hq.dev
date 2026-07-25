@@ -42,14 +42,26 @@ const features = [
       'Agent-config execution surface (AGENT-001..006) — injection, permission-bypass, wildcard tool grants, exfiltration, unauthenticated A2A agent cards (ASI07), and DXT extension command injection (ASI02)',
       'OWASP Top 10 for Agentic Applications (ASI01–ASI10) mapping on findings',
       'Cross-file AI taint — request.json → service hop → chat.completions.create',
+      'Role-aware prompt injection — untrusted input in the system role fires (TAINT-AI-001 / AGENTFLOW-001); the same input in the user role behind a static system prompt does not. Reaching an LLM is necessary but not sufficient',
       'MCP server hardening misconfigs (MCP-001..008)',
       'Polyglot AIBOM v2.0 — every model invocation, auth env, and endpoint',
+    ],
+  },
+  {
+    title: 'MCP drift detection (rug-pull)',
+    items: [
+      'nox mcp baseline captures an MCP server’s tool manifest to a reviewable, diffable .nox/mcp-baseline.json — commit it, review it in PRs',
+      'nox mcp drift re-captures and reports change against the baseline: an added or removed tool, a changed description, a widened schema',
+      'Drift becomes findings (MCP-DRIFT-001..006) — a new code-exec tool is critical, a poisoned description high — flowing through the normal findings.json / SARIF path, exiting non-zero for CI',
+      'The safe form of on-device adaptation: the baseline is data you diff and review, not a mutating rule. Deterministic — an unchanged server produces no drift',
+      'Speaks MCP over stdio; verified against nox’s own MCP server. Untrusted servers must be sandboxed — nox prints the reminder, it does not sandbox for you',
     ],
   },
   {
     title: 'Supply-chain integrity (deterministic, offline)',
     items: [
       'Slopsquatting / hallucinated-package detection (SLOP-001) — imports of a package in no manifest, no standard library, no local module (Python + JS/TS)',
+      'Predictive slopsquatting (SLOP-002) — a signed, versioned feed of high-risk names an LLM is likely to hallucinate that are currently unregistered, so an attacker could claim them. Off by default; digest-verified and fails closed. Learning stays central and signed, enforcement stays local and deterministic',
       'CVE-variant detection (nox variants, VARIANT-*) — first-party code reproducing Log4Shell, Zip Slip, PyYAML full-loader, tar traversal, SSTI, or shell interpolation',
       'Dependency provenance (PROV-001/002, ASI04 / SLSA) — non-registry (VCS/URL/tarball) sources and mutable-ref pins instead of immutable commit SHAs',
       'SCA across 7 ecosystems and 13 lockfile formats via OSV.dev — including yarn, pnpm and poetry — enriching CycloneDX / SPDX SBOM',
