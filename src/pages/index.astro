@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { currentPluginCount, verifiedPlugins } from '../data/plugins';
 
 const stats = [
-  { label: 'Security rules', value: '1,528' },
+  { label: 'Security rules', value: '1,529' },
   { label: 'Languages under taint analysis', value: '21' },
   { label: 'Verified plugins', value: String(verifiedPlugins.length) },
   { label: 'Output formats', value: '6' },
@@ -112,7 +112,7 @@ plugins:
 
 <BaseLayout
   title="Nox — The security scanner that understands your AI app"
-  description="Open-source security scanner with first-class AI app security: prompt injection at the call site, embedding leakage, agent over-privilege, MCP hardening, cross-file AI taint. 1,528 rules, a 21-language taint engine, a Cosign-signed plugin marketplace, and agent-native access via MCP."
+  description="Open-source security scanner with first-class AI app security: prompt injection at the call site, embedding leakage, agent over-privilege, MCP hardening, cross-file AI taint. 1,529 rules, a 21-language taint engine, a Cosign-signed plugin marketplace, and agent-native access via MCP."
 >
   <main>
     <!-- Hero -->
@@ -196,7 +196,7 @@ $ nox scan .</code></pre>
       <div class="detect-header">
         <p class="kicker">Detection coverage</p>
         <h2>What Nox detects</h2>
-        <p>1,528 catalog rules plus a dataflow engine, across six analyzer suites covering the full attack surface of modern applications.</p>
+        <p>1,529 catalog rules plus a dataflow engine, across six analyzer suites covering the full attack surface of modern applications.</p>
       </div>
       <div class="detect-grid">
         {detects.map((d, i) => (
