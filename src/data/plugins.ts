@@ -194,7 +194,7 @@ export const pluginTracks: PluginTrack[] = [
         name: 'nox/grc',
         version: '0.7.1',
         summary:
-          'Governance, Risk & Compliance assessment across 10 frameworks with gap analysis and evidence collection.',
+          'Governance, Risk & Compliance assessment across 13 frameworks with gap analysis and evidence collection.',
         verified: true,
         status: 'current',
       },
