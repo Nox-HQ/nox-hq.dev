@@ -49,7 +49,16 @@ jobs:
           missing=""
           for tag in $(gh release list --repo nox-hq/nox --limit 20 --json tagName --jq '.[].tagName'); do
             v="${tag#v}"
-            case "$v" in 0.*) continue ;; esac
+            # `gh release list` includes the floating `v1` major tag that
+            # release.yml moves to each release. It is a pointer, not a release,
+            # and has no changelog entry by definition — skip anything that is
+            # not a full X.Y.Z. Also skip the 0.x line, which predates the
+            # stable finding schema and is deliberately unpublished.
+            case "$v" in
+              0.*) continue ;;
+              *.*.*) ;;
+              *) continue ;;
+            esac
             [ -f "src/content/changelog/${v}.md" ] || missing="${missing} ${tag}"
           done
           if [ -n "${missing}" ]; then
