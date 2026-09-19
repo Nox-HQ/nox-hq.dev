@@ -5,7 +5,8 @@
  * The registry moved out of the nox repository in 1.10.0 and into
  * Nox-HQ/registry; nox only consumes the published index over HTTP. Summaries
  * and tracks here are taken from that index so the site and the tool agree.
- * Verified against the index at nox 1.13.6.
+ * Versions and deprecations are kept in step by scripts/sync-plugins.mjs,
+ * which a daily workflow runs; summaries remain hand-written.
  */
 
 export type PluginStatus = 'current' | 'deprecated' | 'retired';
@@ -59,23 +60,23 @@ export const pluginTracks: PluginTrack[] = [
     plugins: [
       {
         name: 'nox/reachability',
-        version: '0.7.1',
+        version: '0.9.0',
         summary:
-          'Multi-language reachability analysis. Annotates VULN findings as unreachable, reachable or undetermined across Go, PyPI, npm, Cargo, Maven, RubyGems and NuGet. Bundled in the nox release archive.',
+          'Multi-language reachability analysis. Annotates VULN findings as unreachable, reachable or undetermined across Go, PyPI, npm, Cargo, Maven, RubyGems and NuGet.',
         verified: true,
         status: 'current',
       },
       {
         name: 'nox/taint-analysis',
-        version: '0.7.1',
+        version: '0.7.3',
         summary:
-          'Cross-file and interprocedural taint flow, including AI source-to-sink paths, on top of the taint engine in core.',
-        verified: true,
-        status: 'current',
+          'Retired and archived. Core\'s taint engine has overtaken it: since nox 1.33.0 the plugin adds no finding core does not already report. Remove it with nox plugin remove nox/taint-analysis; core needs no configuration to replace it.',
+        status: 'retired',
+        replacedBy: 'core taint engine (TAINT-*)',
       },
       {
         name: 'nox/container',
-        version: '0.2.2',
+        version: '0.2.4',
         summary: 'Dockerfile linting, image vulnerability scanning and container SBOM (22 rules).',
         verified: true,
         status: 'current',
@@ -104,7 +105,7 @@ export const pluginTracks: PluginTrack[] = [
     plugins: [
       {
         name: 'nox/dast',
-        version: '0.3.2',
+        version: '0.3.3',
         summary:
           'DAST web/API probes for HTTP misconfiguration — headers, CORS, TLS, cookies, rate limiting, open redirect — plus opt-in AI-DAST: prompt injection, system-prompt leak, tool smuggling, cost amplification.',
         verified: true,
@@ -112,22 +113,22 @@ export const pluginTracks: PluginTrack[] = [
       },
       {
         name: 'nox/k8s-runtime',
-        version: '0.7.1',
+        version: '0.7.2',
         summary: 'Inspects running Kubernetes workloads for security misconfigurations and drift.',
         verified: true,
         status: 'current',
       },
       {
         name: 'nox/red-team',
-        version: '0.7.1',
+        version: '0.7.2',
         summary:
-          'Attack-path analysis and exploit validation. Declares per-tool safety: analyze is passive, validate is active and requires confirmation.',
-        verified: true,
-        status: 'current',
+          'Retired and archived. Exploit hypotheses and evidence-backed validation live in core as nox attack; this plugin duplicated that job and its implementation was empty.',
+        status: 'retired',
+        replacedBy: 'nox attack (core)',
       },
       {
         name: 'nox/ai-eval',
-        version: '0.2.1',
+        version: '0.2.2',
         summary:
           'Adversarial prompt corpus runner. Fires a bundled jailbreak / prompt-leak / role-confusion corpus at a configured chat endpoint and reports which attacks succeeded.',
         verified: true,
@@ -143,14 +144,14 @@ export const pluginTracks: PluginTrack[] = [
       },
       {
         name: 'nox/api-abuse',
-        version: '0.2.2',
+        version: '0.2.3',
         summary: 'API authorization testing for BOLA, BFLA, rate-limit and abuse patterns in server code (5 rules).',
         verified: true,
         status: 'current',
       },
       {
         name: 'nox/attack-surface',
-        version: '0.2.2',
+        version: '0.3.0',
         summary:
           'Static endpoint extraction and exposure mapping across Go (net/http, Gin, Echo, Chi), Python (Flask, Django, FastAPI) and JavaScript/TypeScript (Express, Koa, Fastify).',
         verified: true,
@@ -171,8 +172,16 @@ export const pluginTracks: PluginTrack[] = [
     plugins: [
       {
         name: 'nox/depconfusion',
-        version: '0.2.2',
+        version: '0.2.4',
         summary: 'Dependency confusion detection across npm, PyPI, RubyGems and Maven (3 rules).',
+        verified: true,
+        status: 'current',
+      },
+      {
+        name: 'nox/freshness',
+        version: '0.1.0',
+        summary:
+          'Flags dependencies by provenance rather than advisory: a version published within the review window, withdrawn from its registry, or released by a different publisher than the one before it (npm, Go). Catches a package that turned hostile an hour ago, before any advisory exists. Requires nox 1.38.3.',
         verified: true,
         status: 'current',
       },
@@ -192,7 +201,7 @@ export const pluginTracks: PluginTrack[] = [
     plugins: [
       {
         name: 'nox/grc',
-        version: '0.7.1',
+        version: '0.7.4',
         summary:
           'Governance, Risk & Compliance assessment across 13 frameworks with gap analysis and evidence collection.',
         verified: true,
@@ -238,9 +247,10 @@ export const pluginTracks: PluginTrack[] = [
       {
         name: 'nox/threat-explain',
         version: '0.2.2',
-        summary: 'LLM-enhanced finding explanations and impact analysis with audience targeting (8 rules + LLM).',
-        verified: true,
-        status: 'current',
+        summary:
+          'Retired and archived. Core emits CWE metadata and references, and nox/threat-enrich writes the CWE → OWASP → ATT&CK explanations. Its scan tool returned {} for every input.',
+        status: 'retired',
+        replacedBy: 'core + nox/threat-enrich',
       },
     ],
   },
@@ -257,14 +267,15 @@ export const pluginTracks: PluginTrack[] = [
     plugins: [
       {
         name: 'nox/risk-score',
-        version: '0.2.2',
-        summary: 'EPSS / KEV vulnerability prioritization and severity scoring with environmental risk amplification (5 rules).',
-        verified: true,
-        status: 'current',
+        version: '0.2.3',
+        summary:
+          'Retired and archived. EPSS and KEV prioritisation comes from NOX Intelligence, the default advisory source since nox 1.33.0. The plugin never had a working data path, and its stub answered in the dangerous direction.',
+        status: 'retired',
+        replacedBy: 'NOX Intelligence (core)',
       },
       {
         name: 'nox/threat-enrich',
-        version: '0.2.2',
+        version: '0.3.0',
         summary: 'CVE enrichment, CWE mapping and MITRE ATT&CK correlation (13 rules).',
         verified: true,
         status: 'current',
@@ -284,7 +295,7 @@ export const pluginTracks: PluginTrack[] = [
     plugins: [
       {
         name: 'nox/triage-agent',
-        version: '0.2.2',
+        version: '0.3.0',
         summary:
           'LLM-powered finding prioritization and false-positive reduction (4 rules + 7 providers: openai, anthropic, gemini, ollama, cohere, bedrock, copilot).',
         verified: true,
@@ -306,7 +317,7 @@ export const pluginTracks: PluginTrack[] = [
     plugins: [
       {
         name: 'nox/remediate',
-        version: '0.1.1',
+        version: '0.1.2',
         summary:
           'Deterministic remediation planning and application for code findings. Its apply_code and verify_code tools are declared non-read-only and are blocked under the default passive policy until explicitly opted in.',
         verified: true,
