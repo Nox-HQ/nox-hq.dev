@@ -1,7 +1,7 @@
 ---
 title: "Scan of the week: SWE-agent — 141 findings, 0 to disclose"
 description: "Nox scanned princeton-nlp/SWE-agent and returned 141 findings. After triage: mutable CI action tags are real, all four high/critical AI findings are false positives, and the AI-022 misfires led us to withdraw the rule rather than patch it."
-publishedAt: 2026-09-15
+publishedAt: 2026-09-19
 author: nox-hq
 tags: [scan-of-the-week, ai-security, false-positives, precision]
 ---
