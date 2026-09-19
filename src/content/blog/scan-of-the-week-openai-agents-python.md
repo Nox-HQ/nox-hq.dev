@@ -1,7 +1,7 @@
 ---
 title: "Scan of the week: openai-agents-python — 378 findings, 0 genuine issues"
 description: "Nox scanned openai/openai-agents-python at 21c88f5 and returned 378 findings. After triage: 0 true positives, and the most interesting result was a SEC-163 false positive pattern we fixed in nox's own rules."
-publishedAt: 2026-08-01
+publishedAt: 2026-09-19
 author: nox-hq
 tags: [scan-of-the-week, ai-security, false-positives, precision]
 ---
