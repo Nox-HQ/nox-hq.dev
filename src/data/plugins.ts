@@ -177,6 +177,14 @@ export const pluginTracks: PluginTrack[] = [
         verified: true,
         status: 'current',
       },
+      {
+        name: 'nox/freshness',
+        version: '0.1.0',
+        summary:
+          'Flags dependencies by provenance rather than advisory: a version published within the review window, withdrawn from its registry, or released by a different publisher than the one before it (npm, Go). Catches a package that turned hostile an hour ago, before any advisory exists. Requires nox 1.38.3.',
+        verified: true,
+        status: 'current',
+      },
     ],
   },
   {
