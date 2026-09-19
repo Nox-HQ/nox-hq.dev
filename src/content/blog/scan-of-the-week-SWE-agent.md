@@ -1,6 +1,6 @@
 ---
 title: "Scan of the week: SWE-agent — 141 findings, 0 to disclose"
-description: "Nox scanned princeton-nlp/SWE-agent and returned 141 findings. After triage: mutable CI action tags are real, all four high/critical AI findings are false positives, and one FP exposed a bug we fixed in our AI-022 rule."
+description: "Nox scanned princeton-nlp/SWE-agent and returned 141 findings. After triage: mutable CI action tags are real, all four high/critical AI findings are false positives, and the AI-022 misfires led us to withdraw the rule rather than patch it."
 publishedAt: 2026-09-15
 author: nox-hq
 tags: [scan-of-the-week, ai-security, false-positives, precision]
@@ -130,24 +130,34 @@ Both firings are on `temperature: 1.0`, which the rule considers too high:
 
 Both are **false positives** — and this one is **our bug**.
 
-## A rule fix we shipped
+## Why we withdrew the rule instead of patching it
 
-The AI-022 false positives exposed a precision gap. We added two
-`excludeContextKeywords` to the rule:
+The first fix we drafted added two exclusions to AI-022: suppress when
+`reasoning_effort` appears within four lines, and when the model is named
+`replay`. Reviewing it against configs the regression test did not cover showed
+both were wrong:
 
-- **`reasoning_effort`** — when this field appears within four lines of a
-  temperature setting, the model is an o1/o3 reasoning model and temperature=1.0
-  is expected.
-- **`name: replay`** — when the model is named `replay`, the config belongs to a
-  test-replay driver that never calls an LLM.
+- **The line window over-suppressed.** In a multi-model config — the exact shape
+  of SWE-agent's benchmark files — an `o1` block's `reasoning_effort` silenced a
+  neighbouring `gpt-4` block's `temperature: 1.0`, in either order. Whether a
+  temperature belongs to a reasoning model is a question about the YAML block,
+  not about line distance.
+- **`name: replay` matched one spelling.** `name: "replay"` still fired, and one
+  repository's naming convention would have become a global rule.
 
-The fix comes with a regression test (`TestAI022_ReasoningModelTemperatureIsSafe`)
-that covers both suppressions and guards that a plain `gpt-4` config with
-`temperature: 1.0` still fires, along with a case that verifies `reasoning_effort`
-too far away (beyond the ±4 line context window) does not suppress a distant
-unrelated temperature setting.
+That pushed the real question forward: is AI-022 a security finding at all? It
+reported temperature 0.8–1.0 at **High** as "allowing hallucination". Two
+releases earlier, nox had withdrawn AI-041 for flagging temperature above 0.9,
+on the grounds that sampling temperature is a tuning property with no
+confidentiality, integrity or availability consequence. AI-022 flagged a strict
+superset of those values — and 1.0 is the default of the OpenAI and Anthropic
+APIs, and the only value o1/o3 accept.
 
-`go test ./core/...` passes with the change.
+So nox **v1.38.1 withdrew AI-022**, together with three siblings resting on the
+same proposition (AI-023, AI-028, AI-037). None of them fires any more, and a
+`nox:ignore`, baseline entry or VEX statement naming one now explains the
+withdrawal instead of going silent. Re-scanning SWE-agent today produces
+neither of the two findings above.
 
 ## What about DATA-003 and SEC-457?
 
