@@ -1,7 +1,7 @@
 ---
 title: "Scan of the week: phidata — when the scanner flags the guardrail"
 description: "Nox scanned phidatahq/phidata: 1,277 findings. The standout FP — MCP-009 firing on a prompt injection DETECTION class. Plus an AI-007 rule fix."
-publishedAt: 2026-08-15
+publishedAt: 2026-09-19
 author: nox-hq
 tags: [scan-of-the-week, ai-security, false-positives, precision]
 ---
@@ -197,8 +197,8 @@ UX. Logging the actual key value is the security issue.
 This is a rule precision bug. The fix: add `ExcludeContextKeywords` of `"not
 set"`, `"not found"`, `"not configured"`, and similar phrases to AI-007. When
 the match lands on a line that also contains one of these phrases, the finding
-is suppressed. The fix ships in this PR's `core/analyzers/ai/rules.go` change
-with a regression test (`TestNoDetect_APIKeyNotSetMessage`).
+is suppressed. The fix shipped in nox #456 (2026-08-23) with a regression test
+(`TestNoDetect_APIKeyNotSetMessage`).
 
 ### AI-002 (4) — user input into prompt template, false positive
 
@@ -289,8 +289,10 @@ The most memorable finding from this scan is the scanner flagging a class whose
 entire job is to detect prompt injection — because it stores the injection
 phrases it is looking for. Context is not something regex alone can judge.
 
-We shipped the AI-007 fix today. The MCP-009 guardrail-context case is tracked
-for a precision pass.
+Both precision bugs are fixed. AI-007 in nox #456. MCP-009 took two steps: #474
+stopped it flagging a guardrail's own pattern list, and v1.38.3 stopped it
+flagging an injection a guardrail example feeds its agent as `input=`. Re-scanning
+these files with v1.38.3 reports neither.
 
 ```sh
 nox scan . --offline
