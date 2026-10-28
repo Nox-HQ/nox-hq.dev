@@ -60,7 +60,7 @@ export const pluginTracks: PluginTrack[] = [
     plugins: [
       {
         name: 'nox/reachability',
-        version: '0.9.0',
+        version: '0.10.0',
         summary:
           'Multi-language reachability analysis. Annotates VULN findings as unreachable, reachable or undetermined across Go, PyPI, npm, Cargo, Maven, RubyGems and NuGet.',
         verified: true,
