@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { currentPluginCount, verifiedPlugins } from '../data/plugins';
 
 const stats = [
-  { label: 'Security rules', value: '1,529' },
+  { label: 'Security rules', value: '1,505' },
   { label: 'Languages under taint analysis', value: '21' },
   { label: 'Verified plugins', value: String(verifiedPlugins.length) },
   { label: 'Output formats', value: '6' },
@@ -211,7 +211,7 @@ $ nox scan .</code></pre>
       <div class="detect-header">
         <p class="kicker">Detection coverage</p>
         <h2>What Nox detects</h2>
-        <p>1,529 catalog rules plus a dataflow engine, across six analyzer suites covering the full attack surface of modern applications.</p>
+        <p>1,505 rules, some computed by a dataflow engine rather than pattern-matched, across six analyzer suites covering the full attack surface of modern applications.</p>
       </div>
       <div class="detect-grid">
         {detects.map((d, i) => (

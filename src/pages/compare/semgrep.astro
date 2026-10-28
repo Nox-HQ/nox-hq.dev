@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 const capabilityMap = [
   { semgrep: 'Pattern-based SAST', nox: 'core taint engine across 21 languages', note: 'Semgrep DSL is more expressive; Nox computes dataflow rather than matching shapes' },
   { semgrep: 'Cross-file taint (interfile)', nox: 'core TAINT-001..007 (interprocedural) + AI taint', note: 'Free in Nox. Paid tier in Semgrep.' },
-  { semgrep: 'AI security rules', nox: '88 AI/MCP/agent rules + AGENTFLOW dataflow', note: 'Semgrep relies on community AI rules; no MCP coverage' },
+  { semgrep: 'AI security rules', nox: '82 AI/MCP/agent rules + AGENTFLOW dataflow', note: 'Semgrep relies on community AI rules; no MCP coverage' },
   { semgrep: 'SCA / dependencies', nox: 'core VULN-* + nox/reachability (verified)', note: 'Semgrep Supply Chain is paid' },
   { semgrep: 'IaC scanning', nox: '500 IAC rules across Terraform, K8s, Dockerfile, GHA, Ansible, Kustomize, Serverless, Helm', note: 'Semgrep has IaC rules but breadth is narrower' },
   { semgrep: 'Secrets', nox: '913 SEC rules core', note: 'Semgrep secrets is paid' },
@@ -25,7 +25,7 @@ const wins = [
 
 const losses = [
   { title: 'Rule authoring DX', body: 'Semgrep DSL beats RE2-based pattern matching for complex AST queries. If you author dozens of custom rules, Semgrep wins.' },
-  { title: 'Community rule volume', body: 'Semgrep ships thousands of community rules across niche languages, and a marketplace of third-party rule packs. Nox\'s 1,528 rules are curated in-tree, which keeps them testable and deterministic but means no community long tail.' },
+  { title: 'Community rule volume', body: 'Semgrep ships thousands of community rules across niche languages, and a marketplace of third-party rule packs. Nox\'s 1,505 rules are curated in-tree, which keeps them testable and deterministic but means no community long tail.' },
   { title: 'Type-aware analysis', body: 'Semgrep Pro has type-aware analysis for Java/JavaScript/Python that catches edge cases pattern matching misses.' },
 ];
 
