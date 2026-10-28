@@ -5,8 +5,8 @@ const features = [
   {
     title: 'Detection Engine',
     items: [
-      '1,529 catalog rules — 913 secrets, 500 IaC, 88 AI/MCP, 12 data sensitivity, plus supply-chain and provenance families',
-      'A separate dataflow engine on top: TAINT-001..007, AGENTFLOW-001/002 and CRYPTO-001, which are computed rather than pattern-matched',
+      '1,505 catalog rules — 884 secrets, 485 IaC, 82 AI/MCP/agent, 12 data sensitivity, plus supply-chain and provenance families',
+      'Of those, a dataflow engine computes TAINT-001..011, TAINT-AI-001/002, AGENTFLOW-001/002 and CRYPTO-001/002 rather than pattern-matching them',
       'Secrets, AI security, IaC, dependencies, taint and data sensitivity in one scan',
       'nox verify-secrets asks the issuer whether a detected credential still works, using the leaked credential itself — so a finding becomes LIVE or revoked rather than merely "looks like a token". Endpoints are compiled in and the secret never appears in output; this is validity checking, not revocation',
       'Deterministic execution with offline-first defaults',

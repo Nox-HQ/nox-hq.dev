@@ -3,7 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const capabilityMap = [
   { trivy: 'Container image scanning', nox: 'core CONT-* + nox/container (22 rules)', note: 'Trivy still leads here; pair them' },
-  { trivy: 'Filesystem scanning', nox: 'core (913 secrets, 500 IaC, 88 AI/MCP, 12 PII)', note: 'Nox covers more rule families per pass' },
+  { trivy: 'Filesystem scanning', nox: 'core (884 secrets, 485 IaC, 82 AI/MCP/agent, 12 PII)', note: 'Nox covers more rule families per pass' },
   { trivy: 'IaC scanning', nox: '500 rules: TF, K8s, Dockerfile, GHA, Ansible, Kustomize, Serverless, Helm', note: 'Broader than Trivy IaC' },
   { trivy: 'SBOM (CycloneDX/SPDX)', nox: 'CycloneDX + SPDX + AIBOM v2.0', note: 'Nox adds AIBOM (AI components)' },
   { trivy: 'Vulnerability database', nox: 'NOX Intelligence (verified against OSV.dev)', note: 'Trivy uses Aqua + GHSA + Red Hat. Trivy DB more comprehensive for CVEs' },
@@ -16,7 +16,7 @@ const capabilityMap = [
 
 const wins = [
   { title: 'AI security', body: 'Prompt injection, embedding leakage, agent over-privilege, MCP server hardening, AI taint flow, AIBOM. Trivy doesn\'t scan any of these.' },
-  { title: 'Broader IaC + SAST in one pass', body: 'Trivy excels at images. Nox covers IaC, taint-based SAST, secrets, AI security, and dependencies in a single deterministic scan with 1,528 rules plus a 21-language dataflow engine.' },
+  { title: 'Broader IaC + SAST in one pass', body: 'Trivy excels at images. Nox covers IaC, taint-based SAST, secrets, AI security, and dependencies in a single deterministic scan with 1,505 rules, including a 21-language dataflow engine.' },
   { title: 'Cosign-signed plugin marketplace', body: 'Every official plugin verified via Sigstore keyless OIDC. Trivy has plugins but no supply-chain integrity model.' },
   { title: 'Manifest-driven plugins (.nox.yaml)', body: 'Pin a verified plugin set per repo. Anyone cloning gets the same scanners on first run.' },
 ];
