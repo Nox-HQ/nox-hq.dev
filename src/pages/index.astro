@@ -40,7 +40,7 @@ const detects = [
     category: 'Dependencies',
     count: 'SCA',
     color: 'var(--blue)',
-    desc: 'OSV.dev lookups with real CVSS v3 base scores across 7 ecosystems and 13 lockfile formats, per-package advisory matching, reachability filtering, and license compliance.',
+    desc: 'Every online scan asks NOX Intelligence and checks each answer against OSV.dev, so it never reports fewer advisories than OSV. Real CVSS v3 base scores across 7 ecosystems and 13 lockfile formats, reachability filtering, and license compliance.',
   },
   {
     category: 'Data Protection',
@@ -50,10 +50,25 @@ const detects = [
   },
 ];
 
+const intelligencePoints = [
+  {
+    title: 'Verified, not trusted',
+    text: 'Every answer is the union with OSV.dev, and the scanner checks it on every run. A record the service withheld is restored and reported, so a bad day for the service never costs you a finding.',
+  },
+  {
+    title: 'Fast enough for every commit',
+    text: 'Answers come from a continuously synced OSV mirror in about half a second, with EPSS, CISA KEV and reachability context. When the mirror cannot vouch for an answer, it asks OSV.dev live.',
+  },
+  {
+    title: 'Package names, never code',
+    text: 'A lookup carries (ecosystem, package, version) and nothing else. --offline makes no connection at all; scan.intelligence.disabled asks OSV.dev directly. Sharing observations is opt-in.',
+  },
+];
+
 const pillars = [
   {
     title: 'Deterministic by design',
-    text: 'Same inputs produce same outputs across local development and CI. No hidden state, no external service dependencies, no flaky results.',
+    text: 'Same inputs produce same outputs across local development and CI. No hidden state, no flaky results, and nothing that depends on a service being up: if a lookup fails, the scan says so instead of passing.',
   },
   {
     title: 'AI security is not an afterthought',
@@ -266,6 +281,31 @@ $ nox scan .</code></pre>
 <span class="t-cyan">Trust:</span> community (signer: cosign-keyless:.../release.yml@.*)
 <span class="t-green">Installed</span> nox/reachability@0.7.1 (community)</code></pre>
         </div>
+      </div>
+    </section>
+
+    <!-- NOX Intelligence -->
+    <section class="section container">
+      <div class="formats-header">
+        <p class="kicker">NOX Intelligence · on by default</p>
+        <h2>Vulnerability answers you can verify, not just trust.</h2>
+        <p>
+          Dependency lookups go to NOX Intelligence: everything OSV.dev knows, plus what the NOX
+          network has found, plus a signed blocklist of package names language models hallucinate.
+          No sign-up and no API key.
+        </p>
+      </div>
+      <div class="cols-3 pillars">
+        {intelligencePoints.map((point, i) => (
+          <article class={`pillar-card reveal ${i === 1 ? 'd2' : i === 2 ? 'd3' : ''}`}>
+            <h2>{point.title}</h2>
+            <p>{point.text}</p>
+          </article>
+        ))}
+      </div>
+      <div class="actions">
+        <a class="btn solid" href="https://intel.klarlabs.de" target="_blank" rel="noreferrer">Open NOX Intelligence</a>
+        <a class="btn ghost" href="https://github.com/nox-hq/nox/blob/main/docs/intelligence.md" target="_blank" rel="noreferrer">What a scan sends</a>
       </div>
     </section>
 

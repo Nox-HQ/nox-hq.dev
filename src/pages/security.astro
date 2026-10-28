@@ -82,7 +82,7 @@ const verifyCmd = `cosign verify-blob \\
       <p class="kicker">Trust model</p>
       <h2>What Nox does (and never does)</h2>
       <ul>
-        <li><strong>Never uploads source code</strong>. Scans run entirely on the build host. OSV vulnerability lookups are gated behind <code>--no-osv</code>.</li>
+        <li><strong>Never uploads source code</strong>. Scans run entirely on the build host. Dependency lookups send only <code>(ecosystem, package, version)</code> to NOX Intelligence, verified against OSV.dev; <code>--offline</code> makes no outbound connection at all, and <code>scan.intelligence.disabled: true</code> asks OSV.dev directly. <a href="https://github.com/nox-hq/nox/blob/main/docs/intelligence.md">What a scan sends</a>.</li>
         <li><strong>Never executes untrusted code</strong>. Plugins run as subprocesses with explicit risk classification (passive / active / runtime); active plugins require operator confirmation.</li>
         <li><strong>Never auto-applies fixes</strong>. <code>nox fix</code> writes a patch to disk; the human commits.</li>
         <li><strong>No telemetry</strong>. Zero outbound network calls beyond the operator's <code>nox plugin install</code> requests.</li>
