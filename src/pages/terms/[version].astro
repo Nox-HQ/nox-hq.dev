@@ -36,7 +36,13 @@ const verify = `nox intel consent${terms.kind === 'contribution' ? '' : ' ' + te
     </section>
 
     <section class="section container">
+      {/* Cloudflare's email obfuscation rewrites addresses in served HTML into
+          "[email protected]" plus a script, so a reader without JavaScript would
+          see different words from the ones nox showed. email_off exempts the
+          text: this page must serve it byte for byte. */}
+      <!--email_off-->
       <pre class="terms"><code>{terms.text}</code></pre>
+      <!--/email_off-->
     </section>
   </main>
 </BaseLayout>
