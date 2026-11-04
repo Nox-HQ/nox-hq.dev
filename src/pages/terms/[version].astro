@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { kinds, supersededBy, versions, type TermsVersion } from '../../data/terms';
+
+export function getStaticPaths() {
+  return versions.map((t) => ({ params: { version: t.version }, props: { terms: t } }));
+}
+
+const { terms } = Astro.props as { terms: TermsVersion };
+const kind = kinds[terms.kind];
+const newer = supersededBy(terms);
+const verify = `nox intel consent${terms.kind === 'contribution' ? '' : ' ' + terms.kind} show | shasum -a 256`;
+---
+
+<BaseLayout
+  title={`Nox — ${kind.title}, version ${terms.version}`}
+  description={`The NOX Intelligence ${kind.title.toLowerCase()}, version ${terms.version}, exactly as nox shows them.`}
+>
+  <main>
+    <section class="section container intro">
+      <p class="kicker"><a href="/terms">Terms</a> · {kind.title}</p>
+      <h1>Version <code>{terms.version}</code></h1>
+      {newer ? (
+        <p class="notice">
+          Superseded by <a href={`/terms/${newer.version}`}><code>{newer.version}</code></a>. This page stays as it is, for anyone who accepted this version.
+        </p>
+      ) : (
+        <p class="notice">Current. Accept it with <code>{kind.accept}</code>.</p>
+      )}
+      <p class="hash">
+        SHA-256 of the text: <code>{terms.sha256}</code>
+      </p>
+      <p class="hash-help">
+        nox's tests pin this hash, so a release cannot change these words without changing the version. To check the text your nox shows, <code>{verify}</code> prints the same hash when your nox carries this version.
+      </p>
+    </section>
+
+    <section class="section container">
+      <pre class="terms"><code>{terms.text}</code></pre>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .notice {
+    max-width: 68ch;
+  }
+  .hash code {
+    word-break: break-all;
+  }
+  .hash-help {
+    max-width: 68ch;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .terms {
+    white-space: pre-wrap;
+    max-width: 82ch;
+  }
+</style>

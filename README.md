@@ -16,6 +16,7 @@ Marketing and landing site for [NOX](https://github.com/Nox-HQ/nox), built with 
 - `/plugins` - Plugin catalog (8 tracks), mirroring the official registry
 - `/changelog` - Release notes, generated from nox's own `CHANGELOG.md`
 - `/get-started` - Install and quick-start flow
+- `/terms`, `/terms/<version>` - Every version of the NOX Intelligence terms, generated from nox by `npm run sync:terms`; a published version never changes
 - `/enterprise`, `/security`, `/compare/*`, `/blog`
 
 ## Keeping content true
