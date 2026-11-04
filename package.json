@@ -9,6 +9,7 @@
     "astro": "astro",
     "og": "node scripts/gen-og.mjs",
     "sync:changelog": "node scripts/sync-changelog.mjs",
+    "sync:terms": "node scripts/sync-terms.mjs",
     "prebuild": "node scripts/gen-og.mjs"
   },
   "dependencies": {

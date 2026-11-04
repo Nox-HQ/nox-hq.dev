@@ -1,0 +1,63 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { byKind, kinds, type TermsKind } from '../../data/terms';
+
+const order: TermsKind[] = ['contribution', 'outcomes', 'attack'];
+---
+
+<BaseLayout
+  title="Nox — NOX Intelligence terms"
+  description="Every version of the terms nox users accept before contributing to NOX Intelligence, published unchanged with the hash nox pins."
+>
+  <main>
+    <section class="section container intro">
+      <p class="kicker">Terms</p>
+      <h1>What you agree to before nox sends anything.</h1>
+      <p class="lede">
+        Scanning, and asking NOX Intelligence for advisories, need no terms. Sending anything back does, and every kind of contribution is off until you turn it on and accept its terms on your machine. nox shows the text and records the version you accepted; this page publishes every version unchanged, so you can read the words you agreed to again.
+      </p>
+      <p class="lede">
+        NOX Intelligence at <code>intel.klarlabs.de</code> is run by Felix Geelhaar (klarlabs-studio). Questions and data requests: <a href="mailto:nox@felixgeelhaar.de">nox@felixgeelhaar.de</a>.
+      </p>
+    </section>
+
+    {order.map((kind) => {
+      const list = byKind(kind);
+      return (
+        <section class="section container">
+          <p class="kicker">{kinds[kind].title}</p>
+          <p>{kinds[kind].summary}</p>
+          <ul class="versions">
+            {list.map((t, i) => (
+              <li>
+                <a href={`/terms/${t.version}`}><code>{t.version}</code></a>
+                <span class="state">{i === 0 ? 'current' : 'superseded'}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      );
+    })}
+  </main>
+</BaseLayout>
+
+<style>
+  .intro p.lede {
+    max-width: 68ch;
+  }
+  .versions {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .versions li {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .state {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+</style>
