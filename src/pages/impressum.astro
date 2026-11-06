@@ -20,7 +20,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </address>
 
       <h2>Kontakt / Contact</h2>
+      {/* Cloudflare's email obfuscation would serve "[email protected]" and
+          a script; an Impressum's address must be readable without one. */}
+      <!--email_off-->
       <p>E-Mail: <a href="mailto:nox@felixgeelhaar.de">nox@felixgeelhaar.de</a></p>
+      <!--/email_off-->
 
       <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
       <p>Felix Geelhaar, address as above.</p>
