@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Nox — Impressum / Legal notice"
+  description="Provider identification for nox-hq.dev and NOX Intelligence (§ 5 DDG)."
+>
+  <main>
+    <section class="section container intro">
+      <p class="kicker">Impressum</p>
+      <h1>Legal notice</h1>
+
+      <h2>Angaben gemäß § 5 DDG</h2>
+      <address>
+        Felix Geelhaar (klarlabs-studio)<br />
+        Ötztaler Straße 6A<br />
+        81373 München<br />
+        Germany
+      </address>
+
+      <h2>Kontakt / Contact</h2>
+      <p>E-Mail: <a href="mailto:nox@felixgeelhaar.de">nox@felixgeelhaar.de</a></p>
+
+      <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+      <p>Felix Geelhaar, address as above.</p>
+
+      <p class="note">
+        This site and the NOX Intelligence service at <code>intel.klarlabs.de</code> are provided by the person named above. What NOX Intelligence receives, and on what terms, is published at <a href="/terms">/terms</a>.
+      </p>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .intro h2 {
+    font-size: 1.1rem;
+    margin-top: 1.75rem;
+  }
+  address {
+    font-style: normal;
+    line-height: 1.6;
+  }
+  .note {
+    margin-top: 2rem;
+    color: var(--muted);
+    max-width: 68ch;
+  }
+</style>
