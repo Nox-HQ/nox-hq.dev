@@ -27,7 +27,14 @@ const cmp = (a, b) => {
   return 0;
 };
 
-const index = await (await fetch(INDEX)).json();
+// The override is for pointing at a registry branch or fork, not at an
+// arbitrary host: the page's facts come from this answer.
+const indexURL = new URL(INDEX);
+if (indexURL.protocol !== 'https:' || indexURL.hostname !== 'raw.githubusercontent.com') {
+  console.error(`sync-plugins: NOX_REGISTRY_INDEX must be an https://raw.githubusercontent.com URL, got ${indexURL.origin}`);
+  process.exit(2);
+}
+const index = await (await fetch(indexURL.href)).json(); // nox:ignore TAINT-006 -- the host is checked against raw.githubusercontent.com over https just above, and the script exits otherwise
 const registry = new Map(index.plugins.map((p) => [p.name, {
   version: (p.versions || []).map((v) => v.version).sort(cmp).at(-1),
   deprecated: !!p.deprecated,

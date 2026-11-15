@@ -12,10 +12,10 @@ name: Sync changelog
 on:
   schedule:
     - cron: '17 5 * * *'
-  workflow_dispatch: {} # nox:ignore IAC-308 -- syncing release notes on demand is the point
+  workflow_dispatch: {} # nox:ignore IAC-308,IAC-155 -- syncing release notes on demand is the point; its only output is a PR, which is where review happens
 
 permissions:
-  contents: write
+  contents: write # nox:ignore IAC-314 -- pushes the sync branch for the PR
   pull-requests: write
 
 jobs:
