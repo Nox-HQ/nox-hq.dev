@@ -1,22 +1,22 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 
 export const getStaticPaths = (async () => {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
   return posts.map((post) => ({
-    params: { slug: post.slug },
+    params: { slug: post.id },
     props: { post },
   }));
 }) satisfies GetStaticPaths;
 
 const { post } = Astro.props;
-const { Content } = await post.render();
+const { Content } = await render(post);
 const fmt = new Intl.DateTimeFormat('en-US', { dateStyle: 'long' });
 
 const publishedISO = post.data.publishedAt.toISOString();
-const postURL = new URL(`/blog/${post.slug}`, 'https://nox-hq.dev').href;
+const postURL = new URL(`/blog/${post.id}`, 'https://nox-hq.dev').href;
 const blogPostingLd = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
@@ -38,7 +38,7 @@ const blogPostingLd = {
 <BaseLayout
   title={`${post.data.title} — Nox blog`}
   description={post.data.description}
-  ogImage={`/og/${post.slug}.png`}
+  ogImage={`/og/${post.id}.png`}
   ogType="article"
   article={{ publishedTime: publishedISO, author: post.data.author, tags: post.data.tags }}
   jsonLd={blogPostingLd}

@@ -140,7 +140,7 @@ const structuredData = jsonLd ?? {
             method="post"
             target="_blank"
           >
-            <input type="email" name="email" placeholder="you@company.com" required aria-label="Email address" />
+            <input type="email" name="email" placeholder="you@company.com" required aria-label="Email address" /> <!-- nox:ignore DATA-001 -- the newsletter form's placeholder text, not an address anyone uses -->
             <button type="submit" class="btn solid">Subscribe</button>
           </form>
         </div>

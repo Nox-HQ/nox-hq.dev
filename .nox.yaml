@@ -1,0 +1,7 @@
+scan:
+  exclude:
+    # Blog posts and release notes. The posts quote the code nox found in the
+    # repositories it scanned ("scan of the week") and the release notes quote
+    # nox's own fixtures; none of it is code this site runs. The site's own
+    # pages, layouts, scripts and workflows are scanned.
+    - "src/content/"
