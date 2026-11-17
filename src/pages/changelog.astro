@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 
 const compare = (a: string, b: string) => {
   const pa = a.split('.').map(Number);
@@ -18,7 +18,7 @@ const entries = (await getCollection('changelog')).sort((a, b) =>
 const releases = await Promise.all(
   entries.map(async (entry) => ({
     ...entry.data,
-    Content: (await entry.render()).Content,
+    Content: (await render(entry)).Content,
   })),
 );
 

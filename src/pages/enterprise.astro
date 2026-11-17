@@ -2,7 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 
 const corePrinciples = [
-  { title: 'No source upload, ever', body: 'Scans run entirely on your build hosts. OSV vulnerability lookups gated behind a single flag (--no-osv) for fully air-gapped environments.' },
+  { title: 'No source upload, ever', body: 'Scans run entirely on your build hosts. Dependency lookups send only package names and versions to NOX Intelligence, verified against OSV.dev; --offline makes no outbound connection for fully air-gapped environments.' },
   { title: 'No telemetry', body: 'Zero outbound network calls beyond operator-initiated plugin installs. Auditable: open-source, deterministic, single binary.' },
   { title: 'Open core, Apache 2.0', body: 'Every detection rule, the trust verifier, the plugin SDK — all open-source under Apache 2.0. No proprietary lock-in.' },
 ];

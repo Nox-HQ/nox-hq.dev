@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const capabilityMap = [
-  { snyk: 'snyk test (dependencies)', nox: 'nox scan (VULN-001..003)', note: 'OSV-backed, offline cache, same JSON shape' },
+  { snyk: 'snyk test (dependencies)', nox: 'nox scan (VULN-001..003)', note: 'NOX Intelligence, verified against OSV on every lookup; offline cache, same JSON shape' },
   { snyk: 'snyk monitor (SaaS state)', nox: 'commit findings.json + diff in CI', note: 'No SaaS, git-native baseline' },
   { snyk: 'Reachability (paid tier)', nox: 'nox/reachability (verified, bundled)', note: '7 ecosystems: Go, PyPI, npm, Cargo, Maven, RubyGems, NuGet' },
   { snyk: 'Snyk Code (SAST)', nox: 'core taint engine (TAINT-001..007)', note: '21 languages, interprocedural within a file, measured precision 1.00' },
@@ -20,7 +20,7 @@ const wins = [
   { title: 'AI security at the call site', body: 'Prompt injection (LLM01), embedding leakage (LLM06), agent over-privilege (LLM07), MCP server hardening. No commercial scanner ships these as a cohesive family today.' },
   { title: 'Cosign-signed plugin marketplace', body: 'Every official plugin signed via Sigstore keyless OIDC. Trust chain: cosign(checksums.txt) → tarball SHA → registry digest. Snyk has no equivalent — third-party scanners run unverified.' },
   { title: 'Cross-file AI taint', body: 'Track tainted input through service hops: request.json → handler → microservice call → chat.completions.create. Snyk and Semgrep treat each file in isolation.' },
-  { title: 'No SaaS, no telemetry, no source upload', body: 'Single binary. Scans run entirely offline (OSV lookups gated behind --no-osv). Source code never leaves the build host.' },
+  { title: 'No SaaS, no telemetry, no source upload', body: 'Single binary. Dependency lookups send only package names and versions; --offline makes no connection at all. Source code never leaves the build host.' },
   { title: 'Polyglot AIBOM', body: 'One ai.inventory.json covers Python ingest + Go service + TypeScript frontend with model invocations, auth env vars, and endpoints per call site.' },
   { title: 'Manifest-driven plugins', body: '.nox.yaml plugins.required ships pinned, signed plugin sets the way package.json ships dependencies. No dashboard config.' },
   { title: 'MCP-native', body: 'Built-in MCP server lets Claude / Cursor / any agent query scan results read-only. Snyk has no agent surface.' },
@@ -30,7 +30,7 @@ const wins = [
 
 const losses = [
   { title: 'No managed dashboard', body: 'By design. Use nox dashboard for a static HTML view, or roll up per-repo findings.json into a warehouse.' },
-  { title: 'No private CVE database', body: 'Nox consumes OSV. If you rely on Snyk-private CVE data, author a custom rule pack or wait for OSV import.' },
+  { title: 'No private CVE database', body: 'Nox consumes OSV through NOX Intelligence, which adds network evidence and is verified against OSV on every lookup. If you rely on Snyk-private CVE data, author a custom rule pack.' },
   { title: 'Smaller integrations catalog', body: 'Fewer enterprise integrations (Jira, ServiceNow). Build via the MCP server or consume findings.json.' },
   { title: 'No managed PR remediation', body: 'nox fix runs locally. Pair with Renovate / Dependabot for PR creation.' },
 ];

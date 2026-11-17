@@ -140,7 +140,7 @@ const structuredData = jsonLd ?? {
             method="post"
             target="_blank"
           >
-            <input type="email" name="email" placeholder="you@company.com" required aria-label="Email address" />
+            <input type="email" name="email" placeholder="you@company.com" required aria-label="Email address" /> <!-- nox:ignore DATA-001 -- the newsletter form's placeholder text, not an address anyone uses -->
             <button type="submit" class="btn solid">Subscribe</button>
           </form>
         </div>
@@ -180,6 +180,8 @@ const structuredData = jsonLd ?? {
             <li><a href="/security">Security policy</a></li>
             <li><a href="https://github.com/Nox-HQ/nox/blob/main/docs/marketplace.md" rel="noreferrer">Trust model</a></li>
             <li><a href="/changelog">Changelog</a></li>
+            <li><a href="/terms">Intelligence terms</a></li>
+            <li><a href="/impressum">Impressum</a></li>
             <li><a href="https://github.com/Nox-HQ/nox/blob/main/CONTRIBUTING.md" rel="noreferrer">Contributing</a></li>
           </ul>
         </div>
@@ -187,7 +189,7 @@ const structuredData = jsonLd ?? {
 
       <div class="container footer-meta-row">
         <p>Open source under <a href="https://github.com/Nox-HQ/nox/blob/main/LICENSE" rel="noreferrer">Apache 2.0</a>. Marketplace verified via <a href="https://www.sigstore.dev/" rel="noreferrer">Sigstore</a> keyless OIDC.</p>
-        <p>© 2026 nox-hq · <a href="https://klarlabs.de" rel="noreferrer">A Klarlabs Product</a></p>
+        <p>© 2026 nox-hq · <a href="https://klarlabs.de" rel="noreferrer">A Klarlabs Product</a> · <a href="/impressum">Impressum</a></p>
       </div>
     </footer>
 

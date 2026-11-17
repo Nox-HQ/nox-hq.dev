@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { currentPluginCount, verifiedPlugins } from '../data/plugins';
 
 const stats = [
-  { label: 'Security rules', value: '1,529' },
+  { label: 'Security rules', value: '1,505' },
   { label: 'Languages under taint analysis', value: '21' },
   { label: 'Verified plugins', value: String(verifiedPlugins.length) },
   { label: 'Output formats', value: '6' },
@@ -40,7 +40,7 @@ const detects = [
     category: 'Dependencies',
     count: 'SCA',
     color: 'var(--blue)',
-    desc: 'OSV.dev lookups with real CVSS v3 base scores across 7 ecosystems and 13 lockfile formats, per-package advisory matching, reachability filtering, and license compliance.',
+    desc: 'Every online scan asks NOX Intelligence and checks each answer against OSV.dev, so it never reports fewer advisories than OSV. Real CVSS v3 base scores across 7 ecosystems and 13 lockfile formats, reachability filtering, and license compliance.',
   },
   {
     category: 'Data Protection',
@@ -50,10 +50,25 @@ const detects = [
   },
 ];
 
+const intelligencePoints = [
+  {
+    title: 'Verified, not trusted',
+    text: 'Every answer is the union with OSV.dev, and the scanner checks it on every run. A record the service withheld is restored and reported, so a bad day for the service never costs you a finding.',
+  },
+  {
+    title: 'Fast enough for every commit',
+    text: 'Answers come from a continuously synced OSV mirror in about half a second, with EPSS, CISA KEV and reachability context. When the mirror cannot vouch for an answer, it asks OSV.dev live.',
+  },
+  {
+    title: 'Package names, never code',
+    text: 'A lookup carries (ecosystem, package, version) and nothing else. --offline makes no connection at all; scan.intelligence.disabled asks OSV.dev directly. Sharing observations is opt-in.',
+  },
+];
+
 const pillars = [
   {
     title: 'Deterministic by design',
-    text: 'Same inputs produce same outputs across local development and CI. No hidden state, no external service dependencies, no flaky results.',
+    text: 'Same inputs produce same outputs across local development and CI. No hidden state, no flaky results, and nothing that depends on a service being up: if a lookup fails, the scan says so instead of passing.',
   },
   {
     title: 'AI security is not an afterthought',
@@ -112,7 +127,7 @@ plugins:
 
 <BaseLayout
   title="Nox — The security scanner that understands your AI app"
-  description="Open-source security scanner with first-class AI app security: prompt injection at the call site, embedding leakage, agent over-privilege, MCP hardening, cross-file AI taint. 1,528 rules, a 21-language taint engine, a Cosign-signed plugin marketplace, and agent-native access via MCP."
+  description="Open-source security scanner with first-class AI app security: prompt injection at the call site, embedding leakage, agent over-privilege, MCP hardening, cross-file AI taint. 1,505 rules, a 21-language taint engine, a Cosign-signed plugin marketplace, and agent-native access via MCP."
 >
   <main>
     <!-- Hero -->
@@ -127,7 +142,7 @@ plugins:
           <ul class="hero-bullets">
             <li><strong>Full MCP threat coverage</strong> — tool poisoning, rug-pull, auth / SSRF, and shadow servers, mapped to the OWASP MCP Top 10. The MCP scanner that never sees your code: <code>nox scan . --offline</code>, no API, no token, no telemetry.</li>
             <li><strong>Prompt injection</strong> at the call site (OWASP LLM01)</li>
-            <li><strong>Embedding leakage</strong> when secrets / PII reach vector stores (LLM06)</li>
+            <li><strong>Embedding leakage</strong> when secrets / PII reach vector stores (LLM06)</li> <!-- nox:ignore AI-038 -- a feature description on the marketing page, not code that stores keys with vectors -->
             <li><strong>Agent over-privilege</strong> when `file_read` + `http_request` share an agent context (LLM07)</li>
             <li><strong>Cross-file AI taint</strong> — `request.json` → service hop → `chat.completions.create` across functions and files</li>
             <li><strong>Slopsquatting &amp; CVE variants</strong> — hallucinated-package imports and first-party code reproducing known-CVE root causes, deterministic and offline</li>
@@ -196,7 +211,7 @@ $ nox scan .</code></pre>
       <div class="detect-header">
         <p class="kicker">Detection coverage</p>
         <h2>What Nox detects</h2>
-        <p>1,529 catalog rules plus a dataflow engine, across six analyzer suites covering the full attack surface of modern applications.</p>
+        <p>1,505 rules, some computed by a dataflow engine rather than pattern-matched, across six analyzer suites covering the full attack surface of modern applications.</p>
       </div>
       <div class="detect-grid">
         {detects.map((d, i) => (
@@ -266,6 +281,31 @@ $ nox scan .</code></pre>
 <span class="t-cyan">Trust:</span> community (signer: cosign-keyless:.../release.yml@.*)
 <span class="t-green">Installed</span> nox/reachability@0.7.1 (community)</code></pre>
         </div>
+      </div>
+    </section>
+
+    <!-- NOX Intelligence -->
+    <section class="section container">
+      <div class="formats-header">
+        <p class="kicker">NOX Intelligence · on by default</p>
+        <h2>Vulnerability answers you can verify, not just trust.</h2>
+        <p>
+          Dependency lookups go to NOX Intelligence: everything OSV.dev knows, plus what the NOX
+          network has found, plus a signed blocklist of package names language models hallucinate.
+          No sign-up and no API key.
+        </p>
+      </div>
+      <div class="cols-3 pillars">
+        {intelligencePoints.map((point, i) => (
+          <article class={`pillar-card reveal ${i === 1 ? 'd2' : i === 2 ? 'd3' : ''}`}>
+            <h2>{point.title}</h2>
+            <p>{point.text}</p>
+          </article>
+        ))}
+      </div>
+      <div class="actions">
+        <a class="btn solid" href="https://intel.klarlabs.de" target="_blank" rel="noreferrer">Open NOX Intelligence</a>
+        <a class="btn ghost" href="https://github.com/nox-hq/nox/blob/main/docs/intelligence.md" target="_blank" rel="noreferrer">What a scan sends</a>
       </div>
     </section>
 
