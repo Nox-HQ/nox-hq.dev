@@ -1,7 +1,7 @@
 ---
 title: "Scan of the week: pydantic-ai — 1,606 findings, 0 to disclose"
-description: "Nox scanned pydantic/pydantic-ai and returned 1,606 findings. After triage: base64 PNG image data in test cassettes drove 733 credential false positives, pull_request_target in six CI workflows is a real pattern the team already hardened, and security docstrings triggered the exfiltration rule."
-publishedAt: 2026-10-28
+description: "Nox scanned pydantic/pydantic-ai and returned 1,606 findings. After triage: one line of base64 PNG data in a test cassette drove 387 credential false positives, pull_request_target in six CI workflows is a real pattern the team already hardened, and security docstrings triggered the exfiltration rule."
+publishedAt: 2026-11-17
 author: nox-hq
 tags: [scan-of-the-week, ai-security, false-positives, precision]
 ---
@@ -9,7 +9,8 @@ tags: [scan-of-the-week, ai-security, false-positives, precision]
 Every two weeks we point Nox at one open-source AI project and report what we
 find — honestly, including our own false positives. This week:
 [`pydantic/pydantic-ai`](https://github.com/pydantic/pydantic-ai), the
-multi-provider agent framework from the Pydantic team, at commit `9ac853b`.
+multi-provider agent framework from the Pydantic team, at commit `9ac853b`
+(scanned 2026-10-28).
 
 > **`nox scan . --offline` → 1,606 findings.**
 
@@ -42,13 +43,13 @@ This is the largest number in the series — and the most instructive.
 
 This looks alarming. Here is what it actually means.
 
-## The cassette cascade: 733 findings from PNG pixel data
+## The cassette cascade: 387 findings from PNG pixel data
 
 The single largest source of noise is also the most surprising. pydantic-ai
 ships 161 MB of VCR cassette files — YAML recordings of real LLM API responses
 used in offline tests. Some of those recorded responses are AI-generated images
 returned as base64-encoded PNG data. When Nox scans those cassette files, the
-long base64 strings match several credential regex patterns (tracked as [#930](https://github.com/nox-hq/nox/issues/930)).
+long base64 strings match credential regex patterns ([#930](https://github.com/nox-hq/nox/issues/930)).
 
 Two rules fire together:
 
@@ -58,14 +59,16 @@ Two rules fire together:
 - **SEC-048 (NuGet API Key) × 153** — similar: 46-character base64 strings with
   matching entropy.
 
-Total: **733 findings from one test fixture directory**
+Total: **387 findings from a single 2.9-million-character line** in one cassette
 (`tests/cassettes/test_capability_image_generation/`). None are real credentials.
 They are PNG pixels.
 
 This is the largest single source of false positives we have ever seen in this
 series, and it is entirely predictable: any multi-modal test suite that records
-image responses verbatim will produce this class of noise. A two-line `.nox.yaml`
-eliminates it:
+image responses verbatim will produce this class of noise. It was also our bug:
+nothing on that line carries a token's prefix or context, so neither rule should
+have fired. **Fixed in nox v1.55.3** — the same scan no longer reports them.
+On older versions, a two-line `.nox.yaml` removes them:
 
 ```yaml
 scan:
@@ -73,9 +76,8 @@ scan:
     - "tests/cassettes/**"
 ```
 
-That collapses 1,606 findings to about 873 without touching any real signal.
-If you use VCR cassettes with image data in your own project, the same exclude
-applies.
+Recorded API responses are not code you ship, so excluding cassettes is a
+reasonable default for any project that uses them.
 
 ## IAC-011 × 6: pull_request_target used carefully
 
@@ -139,9 +141,9 @@ MCP server authors instructing models to forward credentials.
 
 This is our bug. The rule applies `IgnoreInComments = true`, which strips
 single-line `#` comments in Python, but Python docstrings are triple-quoted string
-literals, not comments in the syntactic sense, so they are not suppressed. The fix
-that extends the comment-suppression logic to docstrings for Python files is
-tracked at [nox#927](https://github.com/nox-hq/nox/issues/927).
+literals, not comments in the syntactic sense, so they are not suppressed. Python
+docstrings are now treated as comments for this rule ([nox#927](https://github.com/nox-hq/nox/issues/927),
+**fixed in v1.55.3**).
 
 The functions themselves are standard API discovery clients with no security
 concern: `follow_redirects=False`, tokens from a credential store, requests to a
@@ -167,7 +169,7 @@ The false positive arises because the rule matches the shape
 safe known names. A custom subclass of `yaml.BaseLoader` is not on that list, so
 it fires. The fix is to walk the MRO when a custom class is used: if it inherits
 exclusively from `BaseLoader` or `SafeLoader`, suppress. **False positive.**
-Tracked at [nox#928](https://github.com/nox-hq/nox/issues/928).
+[nox#928](https://github.com/nox-hq/nox/issues/928), **fixed in v1.55.3**.
 
 ## What pydantic-ai actually gets right on AI security
 
@@ -178,8 +180,8 @@ curated deny-list of 169.254.0.0/16, 100.64.0.0/10, all RFC-1918 ranges, and
 the instance-metadata endpoints for AWS, GCP, Azure, DigitalOcean and others.
 It is applied to `HttpxProvider` and the MCP HTTP client. MCP-018 fired on this
 file — the SSRF endpoint IPs appear inside the blocklist — but the code is
-defensive, not offensive. Another rule-precision bug on our side, tracked at
-[nox#929](https://github.com/nox-hq/nox/issues/929).
+defensive, not offensive. Another rule-precision bug on our side,
+[nox#929](https://github.com/nox-hq/nox/issues/929), **fixed in v1.55.4**.
 
 **The PromptInjectionDefender capability is opt-in and clearly labelled.** The
 harness ships `PromptInjectionDefender` backed by `stackone-defender`, wrapped as
@@ -228,8 +230,8 @@ That is a 99.6% false-positive rate on this scan.
 
 The dominant sources of noise, in order:
 
-1. **Base64 image data in VCR cassettes** (733 findings) — exclude cassette
-   directories from credential scanning ([#930](https://github.com/nox-hq/nox/issues/930)).
+1. **Base64 image data in VCR cassettes** (387 findings) — token-shaped windows
+   inside an image blob ([#930](https://github.com/nox-hq/nox/issues/930)).
 2. **Fake credentials in test fixtures** (4 findings) — placeholder AWS and Stripe
    keys used to test the application's own secret detection.
 3. **Security docstrings triggering exfiltration rules** (2 findings) — comments
@@ -242,8 +244,15 @@ The dominant sources of noise, in order:
    listing blocked endpoints fires the rule designed to catch offensive code
    ([#929](https://github.com/nox-hq/nox/issues/929)).
 
-Items 3–5 are precision bugs in Nox. Items 1 and 2 are expected behaviour
-from credential regex rules that cannot see context.
+Items 1 and 3–5 were precision bugs in Nox, and all four are fixed: #927, #928
+and #930 in v1.55.3, #929 in v1.55.4. Item 2 is expected behaviour from
+credential rules that cannot tell a placeholder from a key.
+
+**Re-scan.** On 2026-11-01 we scanned pydantic-ai again, at `e286b84`, with the
+fixes in place: 1,358 findings, still nothing to disclose. Most of what remains is
+CI hygiene (IAC-018 `continue-on-error`, which the project uses deliberately so a
+flaky model provider does not cancel a whole matrix run) and undeclared imports
+in CI helper scripts (SLOP-001).
 
 The genuine AI-security picture for pydantic-ai is good: comprehensive SSRF
 protection, opt-in prompt injection defence, an honest "this is not sandboxed"
