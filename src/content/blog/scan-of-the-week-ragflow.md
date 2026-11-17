@@ -1,7 +1,7 @@
 ---
 title: "Scan of the week: RAGFlow — 546 findings, three precision bugs, nothing to disclose"
-description: "Nox scanned infiniflow/ragflow at f9a53a3: 546 findings, 50 AI-* and 4 MCP-*. MCP-009/MCP-011 fire on the wrong context; locale files dominate SEC-080. Real signal: TLS skip + mutable GA tags + legacy SHA1."
-publishedAt: 2026-11-15
+description: "Nox scanned infiniflow/ragflow at f9a53a3: 546 findings, 50 AI-* and 4 MCP-*. SEC-080 on translation files and MCP-009/MCP-011 on the wrong context were our bugs, now fixed. Real signal: TLS skip, mutable GA tags, a privileged sandbox container."
+publishedAt: 2026-11-17
 author: nox-hq
 tags: [scan-of-the-week, ai-security, false-positives, precision]
 ---
@@ -22,7 +22,7 @@ Headline number first:
 This is a medium-sized codebase compared to what we've scanned before. Let's
 see where those 546 go.
 
-## 36% of it is a single rule on locale files
+## A quarter of it is one rule on translation files
 
 **198 of the 546 findings are SEC-080** ("Generic password assignment
 detected"). Of those, 149 fire inside `web/src/locales/` — the i18n
@@ -41,7 +41,15 @@ display string. That's not a credential — it's a label. The same pattern fires
 across every locale file in the directory (Arabic, Chinese, Japanese, Korean,
 French, Turkish, Portuguese, Russian, …).
 
-The right answer is a two-line `.nox.yaml`:
+That is our bug, not RAGFlow's: a translation catalogue is not a place where
+passwords are assigned. **Fixed on main** ([nox#1100](https://github.com/nox-hq/nox/pull/1100)):
+SEC-080 no longer reports a key named `password` in a file under a locale
+directory (`locales/`, `i18n/`, `translations/`, …) whose name or folder is a
+language tag (`ar.ts`, `zh-CN.json`, `de/common.yaml`). Re-running the same
+scan with the fix drops 146 of these findings and nothing else from SEC-080. A
+real password in an ordinary config file — or in `locales/index.ts`, which is
+not a catalogue — is still reported. The fix ships in the next release; until
+then, a `.nox.yaml` exclude does the same job:
 
 ```yaml
 scan:
@@ -49,13 +57,10 @@ scan:
     - "web/src/locales/**"
 ```
 
-Locale/i18n files are display strings, not code. Excluding them from
-secret-pattern rules is a sound policy for any project with an i18n layer.
+## Two MCP rule precision bugs we exposed
 
-## Three MCP rule precision bugs we exposed
-
-This scan found two distinct precision bugs in Nox's own MCP rules. We're
-calling them out rather than hiding them.
+This scan found two distinct precision bugs in Nox's own MCP rules, on top of
+SEC-080. We're calling them out rather than hiding them.
 
 ### MCP-009 fires on a security pattern database
 
@@ -96,9 +101,13 @@ positive.** The rule's confidence was correctly set to `low`, but the severity
 MCP server config or tool-schema contexts, not arbitrary TypeScript string
 literals.
 
-Both findings have been filed internally for rule revision. The low confidence
-flag on MCP-011 is working as intended; the high/critical labels on MCP-009
-and MCP-011 respectively are not.
+Both are **fixed on main** in the same change ([nox#1100](https://github.com/nox-hq/nox/pull/1100)):
+MCP-009 no longer reports a detection table — a string next to a `PatternID`
+field — and MCP-011 no longer reports text in a `.tsx`/`.jsx` component that
+defines no agent tool. A component that does register one (WebMCP
+`registerTool`, an AI SDK `tool()`) is still checked. With all three fixes the
+same scan reports 396 findings instead of 546: exactly the 146 SEC-080, 2
+MCP-009 and 2 MCP-011 findings above, and nothing new.
 
 ### AGENT-004 on AGENTS.md coding conventions
 
@@ -202,9 +211,10 @@ scan:
 
 ## Takeaway
 
-546 → roughly 150 real signals. That 73% noise rate is higher than average for
-this series, driven almost entirely by one rule (SEC-080) on locale files and
-three MCP precision misfires. The genuine hardening work is well-defined: pin
+546 findings → 56 we confirmed as real (HARDEN-001 ×5, IAC-013 ×9, IAC-007 ×1,
+IAC-001 ×4, IAC-123 ×21, CRYPTO-001 ×16) → 0 to disclose. The biggest single
+source of noise was our own: SEC-080 on translation files, plus two MCP
+precision misfires. All three are fixed, and the same scan now reports 396. The genuine hardening work is well-defined: pin
 GA tags by SHA, add a TLS-verify flag for configurable remote targets, drop
 root from the production Dockerfiles, and audit the Akshare tool's HTTP call.
 
