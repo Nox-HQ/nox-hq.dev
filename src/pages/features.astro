@@ -38,7 +38,7 @@ const features = [
     title: 'AI Security (first-class)',
     items: [
       'Prompt injection at the call site (AI-PI-*, OWASP LLM01)',
-      'Embedding leakage when secrets / PII reach vector stores (LLM06)',
+      'Embedding leakage when secrets / PII reach vector stores (LLM06)', // nox:ignore AI-038 -- a feature description on the marketing page, not code that stores keys with vectors
       'Agent over-privilege when file_read + http_request share a context (LLM07)',
       'Agent-config execution surface (AGENT-001..006) — injection, permission-bypass, wildcard tool grants, exfiltration, unauthenticated A2A agent cards (ASI07), and DXT extension command injection (ASI02)',
       'OWASP Top 10 for Agentic Applications (ASI01–ASI10) mapping on findings',

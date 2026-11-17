@@ -1,5 +1,7 @@
 # NOX Website
 
+[![nox security grade](.github/nox-badge.svg)](https://github.com/nox-hq/nox)
+
 Marketing and landing site for [NOX](https://github.com/Nox-HQ/nox), built with Astro + Vue and D3 visualizations.
 
 ## Stack

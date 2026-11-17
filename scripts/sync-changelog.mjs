@@ -21,6 +21,7 @@
  * longer exists; the page links to GitHub Releases for that history.
  */
 
+import { emDashes } from './em-dash.mjs';
 import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
@@ -158,7 +159,7 @@ async function main() {
     // Fixed` would come out a sibling of the version it belongs to rather than
     // nested under it. Shift one level; `sectionsOf` and `summaryOf` have
     // already read the original.
-    const body = release.body.replace(/^### /gm, '#### ');
+    const body = emDashes(release.body.replace(/^### /gm, '#### '));
 
     await writeFile(join(outDir, `${release.version}.md`), frontmatter + body + '\n');
   }
